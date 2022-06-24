@@ -9,4 +9,8 @@
     <Description>国密SM2、SM3、SM4算法</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Crypto.dll" Version="1.8.1" />
+  </ItemGroup>
+
 </Project>
