@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>0.0.1</Version>
+    <Authors>hyfree</Authors>
+    <Description>国密SM2、SM3、SM4算法</Description>
+  </PropertyGroup>
+
+</Project>
