@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MoreNote.GM
+namespace github.hyfree.GM
 {
    public class HexUtil
     {

@@ -8,7 +8,7 @@ using Org.BouncyCastle.Security;
 using System.Text;
 using Org.BouncyCastle.Crypto.Digests;
 
-namespace MoreNote.GM
+namespace github.hyfree.GM
 {
     public class SM2
     {

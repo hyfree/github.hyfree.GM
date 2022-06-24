@@ -1,6 +1,6 @@
 ﻿
 
-using MoreNote.GM;
+
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 
 
-namespace MoreNote.GM
+namespace github.hyfree.GM
 {
     public class GMService
     {

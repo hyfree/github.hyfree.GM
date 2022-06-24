@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace MoreNote.GM
+namespace github.hyfree.GM
 {
     public class Cipher
     {

@@ -4,7 +4,7 @@ using System.Text;
 using Org.BouncyCastle.Crypto;
 
 
-namespace MoreNote.GM
+namespace github.hyfree.GM
 {
     public abstract class GeneralDigest : IDigest
     {
