@@ -51,7 +51,7 @@ namespace github.hyfree.GM.Tests
         public void SM4EncTest()
         {
             //原始数据
-            var data = "3030303030303030303030303030303030303030303030303030303030303030";
+            var data = "E9F4BDE3A1C5807D89C9F0FD980DEA90352AF7DC026DC100AAD8FC6E8646B366";
             var key = "00000000000000000000000000000000";
             var iv = "00000000000000000000000000000000";//测试用途
             GMService gMService = new GMService();
