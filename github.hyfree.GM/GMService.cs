@@ -54,6 +54,12 @@ namespace github.hyfree.GM
             var result = sm3.Hmac(input,key);
             return result;
         }
+        public string Hmac(string input,string key)
+        {
+            var result=Hmac(HexUtil.HexToByteArray(input),HexUtil.HexToByteArray(key));
+
+            return HexUtil.ByteArrayToHex(result);
+        }
 
 
 

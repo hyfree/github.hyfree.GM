@@ -83,12 +83,21 @@ namespace github.hyfree.GM.Tests
             var hex64 = "01020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708";
             var hex128 = "0102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708";
             var gm = new GMService();
-            var test1 = gm.Hmac(HexUtil.HexToByteArray(hex32), HexUtil.HexToByteArray(hex32));
-            var expect = "41e6589cde89b4f8c810a820c2fb6f0ad86bf2c136a19cfb3a5c0835f598e07b";
-            var hash = HexUtil.ByteArrayToHex(test1);
-            Console.WriteLine(hash);
+            //32字节输入
+            var test1 = gm.Hmac(hex32, hex32);  
+            Assert.AreEqual(test1.ToLower(), "41e6589cde89b4f8c810a820c2fb6f0ad86bf2c136a19cfb3a5c0835f598e07b");
+            
+            //不固定长度输入
+            var test2 =gm.Hmac("313233343536", "31323334353637383930");
+            Assert.AreEqual(test2.ToLower(), "bc1f71eef901223ae7a9718e3ae1dbf97353c81acb429b491bbdbefd2195b95e");
 
-            Assert.AreEqual(hash.ToLower(), expect);
+            //64字节
+            var test3=gm.Hmac(hex64, hex64);
+            Assert.AreEqual(test3.ToLower(), "d6fb17c240930a21996373aa9fc0b1092931b016640809297911cd3f8cc9dcdd");
+
+            //128字节
+            var test4= gm.Hmac(hex128, hex128);
+            Assert.AreEqual(test4.ToLower(), "d374f8adb0e9d1f12de94c1406fe8b2d53f84129e033f0d269400de8e8e7ca1a");
         }
     }
 }
