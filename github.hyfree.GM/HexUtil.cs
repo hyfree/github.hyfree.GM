@@ -6,6 +6,20 @@ namespace github.hyfree.GM
 {
    public class HexUtil
     {
+        public static byte[] XOR(byte[] x, byte[] y)
+        {
+            if (x.Length!=y.Length)
+            {
+                throw new ArgumentException("x.Length!=y.Length");
+            }
+
+            var result = new byte[x.Length];
+            for (int i = 0; i < x.Length; i++)
+            {
+                result[i] = (byte)((x[i] ^ y[i]) & 0xff);
+            }
+            return result;
+        }
         public static string ByteArrayToHex(byte[] ba)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);

@@ -40,6 +40,23 @@ namespace github.hyfree.GM
             var result = sm3.Hash(hex);
             return result;
         }
+
+        public byte[] SM3(byte[] data)
+        {
+            SM3Util sm3 = new SM3Util();
+            var result = sm3.Hash(data);
+            return result;
+        }
+
+        public byte[] Hmac(byte[] input, byte[] key)
+        {
+            SM3Util sm3 = new SM3Util();
+            var result = sm3.Hmac(input,key);
+            return result;
+        }
+
+
+
         public string SM4_Encrypt_CBC(string value, string key,string iv,bool outHex)
         {
             SM4Utils sm4 = new SM4Utils();
