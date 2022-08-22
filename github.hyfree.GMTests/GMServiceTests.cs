@@ -76,6 +76,22 @@ namespace github.hyfree.GM.Tests
 
         }
 
+
+        [TestMethod()]
+        public void PBKDF2Test()
+        {
+            var password = "368c1adba8b9d783";
+            var salt = "b4ab70c69fed2e09";
+            var c = 1024;
+            var dkLen = 32;
+            var expect = "2375a8cbe0137d9cda66aff24ea99c5d632576a6a4ed677eaae2833c06bfbd4f";
+            var gm = new GMService();
+            var result = gm.PBKDF2_SM3(password, salt, c, dkLen);
+            Console.WriteLine(result);
+            Assert.AreEqual(result.ToUpper(), expect.ToUpper());
+
+        }
+
         [TestMethod()]
         public void HmacTest()
         {
