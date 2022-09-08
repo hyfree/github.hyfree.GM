@@ -1,13 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using github.hyfree.GM;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace github.hyfree.GM.Tests
 {
     [TestClass()]
@@ -31,7 +23,6 @@ namespace github.hyfree.GM.Tests
             GMService gMService = new GMService();
             var dec = gMService.SM2Decrypt(data, priKey, true);
             Console.WriteLine(dec);
-
         }
 
         [TestMethod()]
@@ -65,6 +56,56 @@ namespace github.hyfree.GM.Tests
         }
 
         [TestMethod()]
+        public void SM4Enc_Byte16_Test()
+        {
+            //原始数据
+            var data = "48d23c70a22d4b566f1b9bb97cfa37db";
+            var key = "8b625fa71322d93058150d65c1257701";
+            var iv = "00000000000000000000000000000000";//测试用途
+            GMService gMService = new GMService();
+            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            enc = enc.ToUpper();
+            //期望数据
+            var expect = "B733A460FF310A259566E910B4A5D8E95D117E570F65562BB65B5A50B7275400";
+            Console.WriteLine("enc=" + enc);
+            Console.WriteLine("exp=" + expect);
+            Assert.AreEqual(enc.ToUpper(), expect.ToUpper());
+        }
+
+        [TestMethod()]
+        public void SM4Enc_Byte17_Test()
+        {
+            //原始数据
+            var data = "48d23c70a22d4b566f1b9bb97cfa37db01";
+            var key = "8b625fa71322d93058150d65c1257701";
+            var iv = "00000000000000000000000000000000";//测试用途
+            GMService gMService = new GMService();
+            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            enc = enc.ToUpper();
+            //期望数据
+            var expect = "B733A460FF310A259566E910B4A5D8E949D03616A91F0F65BE0732C28C987F97";
+            Console.WriteLine("enc=" + enc);
+            Console.WriteLine("exp=" + expect);
+            Assert.AreEqual(enc.ToUpper(), expect.ToUpper());
+        }
+
+        [TestMethod()]
+        public void SM4Enc_Byte15_Test()
+        {
+            //原始数据
+            var data = "48d23c70a22d4b566f1b9bb97cfa37";
+            var key = "8b625fa71322d93058150d65c1257701";
+            var iv = "00000000000000000000000000000000";//测试用途
+            GMService gMService = new GMService();
+            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            enc = enc.ToUpper();
+            //期望数据
+            var expect = "ED684A40910B5DC0C7C1B167B9149594";
+            Console.WriteLine(enc);
+            Assert.AreEqual(enc.ToUpper(), expect.ToUpper());
+        }
+
+        [TestMethod()]
         public void SM3Test()
         {
             var data = "3030303030303030303030303030303030303030303030303030303030303030";
@@ -73,9 +114,26 @@ namespace github.hyfree.GM.Tests
             var sm3 = gm.SM3(data);
             Console.WriteLine(sm3);
             Assert.AreEqual(sm3.ToUpper(), expect);
-
         }
 
+
+        [TestMethod()]
+        public void SM3FileTest()
+        {
+            var data = new byte[8] { 1, 2, 3, 4, 7, 9, 0xFE, 0xFF };
+
+            var gm = new GMService();
+            var sm3 = gm.SM3(data);
+
+            long max = 4 * (1 << 10) * (1 << 10);
+            var stream = File.Open("sm3_file.bin", FileMode.Create);
+            for (int i = 0; i < max; i++)
+            {
+                sm3 = gm.SM3(sm3);
+                stream.Write(sm3, 0, 32);
+            }
+            stream.Close();
+        }
 
         [TestMethod()]
         public void PBKDF2Test()
@@ -89,7 +147,6 @@ namespace github.hyfree.GM.Tests
             var result = gm.PBKDF2_SM3(password, salt, c, dkLen);
             Console.WriteLine(result);
             Assert.AreEqual(result.ToUpper(), expect.ToUpper());
-
         }
 
         [TestMethod()]
@@ -100,19 +157,19 @@ namespace github.hyfree.GM.Tests
             var hex128 = "0102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708";
             var gm = new GMService();
             //32字节输入
-            var test1 = gm.Hmac(hex32, hex32);  
+            var test1 = gm.Hmac(hex32, hex32);
             Assert.AreEqual(test1.ToLower(), "41e6589cde89b4f8c810a820c2fb6f0ad86bf2c136a19cfb3a5c0835f598e07b");
-            
+
             //不固定长度输入
-            var test2 =gm.Hmac("313233343536", "31323334353637383930");
+            var test2 = gm.Hmac("313233343536", "31323334353637383930");
             Assert.AreEqual(test2.ToLower(), "bc1f71eef901223ae7a9718e3ae1dbf97353c81acb429b491bbdbefd2195b95e");
 
             //64字节
-            var test3=gm.Hmac(hex64, hex64);
+            var test3 = gm.Hmac(hex64, hex64);
             Assert.AreEqual(test3.ToLower(), "d6fb17c240930a21996373aa9fc0b1092931b016640809297911cd3f8cc9dcdd");
 
             //128字节
-            var test4= gm.Hmac(hex128, hex128);
+            var test4 = gm.Hmac(hex128, hex128);
             Assert.AreEqual(test4.ToLower(), "d374f8adb0e9d1f12de94c1406fe8b2d53f84129e033f0d269400de8e8e7ca1a");
         }
     }
