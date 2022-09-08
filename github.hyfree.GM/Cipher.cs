@@ -41,13 +41,13 @@ namespace github.hyfree.GM
             byte[] p;
 
 
-            p = p2.X.ToBigInteger().ToByteArray32();
+            p = p2.XCoord.ToBigInteger().ToByteArray32();
             
             sm3keybase.BlockUpdate(p, 0, p.Length);
             sm3c3.BlockUpdate(p, 0, p.Length);
 
 
-            p = p2.Y.ToBigInteger().ToByteArray32();
+            p = p2.YCoord.ToBigInteger().ToByteArray32();
            
             sm3keybase.BlockUpdate(p, 0, p.Length);
 
@@ -132,7 +132,7 @@ namespace github.hyfree.GM
 
         public virtual void Dofinal(byte[] c3)
         {
-            byte[] p = p2.Y.ToBigInteger().ToByteArray32();
+            byte[] p = p2.YCoord.ToBigInteger().ToByteArray32();
             sm3c3.BlockUpdate(p, 0, p.Length);
             sm3c3.DoFinal(c3, 0);
             Reset();
