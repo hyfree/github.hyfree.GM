@@ -1,5 +1,7 @@
 ﻿using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
 using Org.BouncyCastle.Utilities.Encoders;
@@ -7,6 +9,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +17,20 @@ namespace github.hyfree.GM
 {
     public class SM2Utils
     {
-        public static void GenerateKeyPair()
+        public static void GenerateKeyPairHex(out string pubKey,out string priKey)
+        {
+            SM2 sm2 = SM2.Instance;
+            AsymmetricCipherKeyPair key = sm2.ecc_key_pair_generator.GenerateKeyPair();
+            ECPrivateKeyParameters ecpriv = (ECPrivateKeyParameters)key.Private;
+            ECPublicKeyParameters ecpub = (ECPublicKeyParameters)key.Public;
+            BigInteger privateKey = ecpriv.D;
+            ECPoint publicKey = ecpub.Q;
+            pubKey= Encoding.Default.GetString(Hex.Encode(publicKey.GetEncoded())).ToUpper();
+            priKey= Encoding.Default.GetString(Hex.Encode(privateKey.ToByteArray32())).ToUpper();
+            
+        }
+
+        public static SM2KeyPair GenerateKeyPair()
         {
             SM2 sm2 = SM2.Instance;
             AsymmetricCipherKeyPair key = sm2.ecc_key_pair_generator.GenerateKeyPair();
@@ -23,8 +39,48 @@ namespace github.hyfree.GM
             BigInteger privateKey = ecpriv.D;
             ECPoint publicKey = ecpub.Q;
 
-            System.Console.Out.WriteLine("公钥: " + Encoding.Default.GetString(Hex.Encode(publicKey.GetEncoded())).ToUpper());
-            System.Console.Out.WriteLine("私钥: " + Encoding.Default.GetString(Hex.Encode(privateKey.ToByteArray32())).ToUpper());
+            SM2KeyPair kp=new SM2KeyPair();
+            kp.PubKey= publicKey.GetEncoded();
+            kp.PriKey= privateKey.ToByteArray32();
+            return kp;
+        }
+
+        public static byte[] Sign(byte[] msg, byte[] priKey, byte[] id=null)
+        {
+            if (id==null)
+            {
+                id=new byte[] { 0x31, 0x32 ,0x33, 0x34, 0x35, 0x36, 0x37, 0x38 ,0x31, 0x32, 0x33, 0x34, 0x35 ,0x36 ,0x37, 0x38 };
+            }
+            var sm2Signer = new SM2Signer(new SM3Digest());
+            var sm2Parameter = SM2.Instance;
+            BigInteger userD = new BigInteger(1, priKey);
+
+            var privateKeyParameters = new ECPrivateKeyParameters(userD, sm2Parameter.ecc_bc_spec);
+            var parametersWithID=new ParametersWithID(privateKeyParameters,id);
+
+
+            sm2Signer.Init(true, privateKeyParameters);
+            sm2Signer.BlockUpdate(msg, 0, msg.Length);
+            return sm2Signer.GenerateSignature();
+        }
+
+        public static bool VerifySign(byte[] msg, byte[] signature, byte[] pucKey, byte[] id = null)
+        {
+            if (id == null)
+            {
+                id = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
+            }
+            
+            var sm2Signer = new SM2Signer(new SM3Digest());
+            var sm2Parameter = SM2.Instance;
+            ECPoint userKey = sm2Parameter.ecc_curve.DecodePoint(pucKey);
+
+            var publicKeyParameters= new ECPublicKeyParameters(sm2Parameter.ecc_curve.DecodePoint(pucKey),sm2Parameter.ecc_bc_spec);
+            var parametersWithID = new ParametersWithID(publicKeyParameters, id);
+
+            sm2Signer.Init(false, parametersWithID);
+            sm2Signer.BlockUpdate(msg, 0, msg.Length);
+            return sm2Signer.VerifySignature(signature);
         }
 
         public static String Encrypt(byte[] publicKey, byte[] data)
@@ -59,7 +115,7 @@ namespace github.hyfree.GM
             return (sc1 + sc2 + sc3).ToUpper();
         }
 
-        public static String EncryptC1C3C2(byte[] publicKey, byte[] data)
+        public static byte[] EncryptC1C3C2(byte[] publicKey, byte[] data)
         {
             if (null == publicKey || publicKey.Length == 0)
             {
@@ -84,11 +140,13 @@ namespace github.hyfree.GM
             byte[] c3 = new byte[32];
             cipher.Dofinal(c3);
 
-            String sc1 = Encoding.Default.GetString(Hex.Encode(c1.GetEncoded()));
-            String sc2 = Encoding.Default.GetString(Hex.Encode(source));
-            String sc3 = Encoding.Default.GetString(Hex.Encode(c3));
+            //String sc1 = Encoding.Default.GetString(Hex.Encode(c1.GetEncoded()));
+            //String sc2 = Encoding.Default.GetString(Hex.Encode(source));
+            //String sc3 = Encoding.Default.GetString(Hex.Encode(c3));
 
-            return (sc1  + sc3+ sc2).ToUpper();
+            return c1.GetEncoded()
+                .Concat(source)
+                .Concat(c3).ToArray();
         }
 
         public static byte[] Decrypt(byte[] privateKey, byte[] encryptedData)
@@ -122,7 +180,7 @@ namespace github.hyfree.GM
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="privateKey">私钥</param>
         /// <param name="encryptedData">加密数据，前面必须有04</param>
@@ -154,8 +212,6 @@ namespace github.hyfree.GM
             return c2;
         }
 
-       
-
         //[STAThread]
         //public static void Main()
         //{
@@ -164,10 +220,10 @@ namespace github.hyfree.GM
         //    String plainText = "ererfeiisgod";
         //    byte[] sourceData = Encoding.Default.GetBytes(plainText);
 
-        //    //下面的秘钥可以使用generateKeyPair()生成的秘钥内容  
-        //    // 国密规范正式私钥  
+        //    //下面的秘钥可以使用generateKeyPair()生成的秘钥内容
+        //    // 国密规范正式私钥
         //    String prik = "3690655E33D5EA3D9A4AE1A1ADD766FDEA045CDEAA43A9206FB8C430CEFE0D94";
-        //    // 国密规范正式公钥  
+        //    // 国密规范正式公钥
         //    String pubk = "04F6E0C3345AE42B51E06BF50B98834988D54EBC7460FE135A48171BC0629EAE205EEDE253A530608178A98F1E19BB737302813BA39ED3FA3C51639D7A20C7391A";
 
         //    System.Console.Out.WriteLine("加密: ");

@@ -117,13 +117,13 @@ namespace github.hyfree.GM
 
         public virtual void Decrypt(byte[] data)
         {
-            var test=HexUtil.ByteArrayToHex(data);
+            
             for (int i = 0; i < data.Length; i++)
             {
                 if (keyOff == key.Length)
                     NextKey();
 
-                var testKey = HexUtil.ByteArrayToHex(key);
+               
                 data[i] ^= key[keyOff++];
             }
             sm3c3.BlockUpdate(data, 0, data.Length);

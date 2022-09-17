@@ -13,13 +13,15 @@ namespace github.hyfree.GM.Tests
     [TestClass()]
     public class GMServiceTests
     {
+
+        string pubK= "04C7D74C7F058330B281A0F8314E92D3DF999D1CF1AA4751CCB2C6E1B84056F22D7093B262388015EDF6D83D922E3FAD6F2021616179CE085D4D74E4D2A0BB2691";
+        string priK= "74D154764491106A6D6B543D2930085874F25624373C72FA654B61E6603661BE";
         [TestMethod()]
         public void SM2EncryptTest()
         {
             var data = "00000000000000000000000000000000";
-            var pubk = "04F54CEEB470BAFCCE989A98D65BE1AEF562FC0C94DE152A1D658689E1D01692E7BB81C76DBA09CEF76C1386F9E0D02846F3C28BBDB11D697E9DE56341F90B1DE3";
             GMService gMService = new GMService();
-            var enc = gMService.SM2Encrypt(data, pubk);
+            var enc = gMService.SM2Encrypt(data, pubK);
             Console.WriteLine(enc);
         }
 
@@ -100,20 +102,55 @@ namespace github.hyfree.GM.Tests
             var hex128 = "0102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708010203040506070801020304050607080102030405060708";
             var gm = new GMService();
             //32字节输入
-            var test1 = gm.Hmac(hex32, hex32);  
+            var test1 = gm.Hmac(hex32, hex32);
             Assert.AreEqual(test1.ToLower(), "41e6589cde89b4f8c810a820c2fb6f0ad86bf2c136a19cfb3a5c0835f598e07b");
-            
+
             //不固定长度输入
-            var test2 =gm.Hmac("313233343536", "31323334353637383930");
+            var test2 = gm.Hmac("313233343536", "31323334353637383930");
             Assert.AreEqual(test2.ToLower(), "bc1f71eef901223ae7a9718e3ae1dbf97353c81acb429b491bbdbefd2195b95e");
 
             //64字节
-            var test3=gm.Hmac(hex64, hex64);
+            var test3 = gm.Hmac(hex64, hex64);
             Assert.AreEqual(test3.ToLower(), "d6fb17c240930a21996373aa9fc0b1092931b016640809297911cd3f8cc9dcdd");
 
             //128字节
-            var test4= gm.Hmac(hex128, hex128);
+            var test4 = gm.Hmac(hex128, hex128);
             Assert.AreEqual(test4.ToLower(), "d374f8adb0e9d1f12de94c1406fe8b2d53f84129e033f0d269400de8e8e7ca1a");
+        }
+
+        [TestMethod()]
+        public void GenerateKeyPairTest()
+        {
+            GMService gm = new GMService();
+            var kp = gm.GenerateKeyPair();
+            Console.WriteLine(HexUtil.ByteArrayToHex(kp.PubKey));
+            Console.WriteLine(HexUtil.ByteArrayToHex(kp.PriKey));
+
+        }
+
+        [TestMethod()]
+        public void SM2SignTest()
+        {
+            var hex32 = "0102030405060708010203040506070801020304050607080102030405060708";
+            var pubKey = "04CD5D7B6825BFAADB7B018563D9CE85C82B2A8E40426D7FA6D17ED455F093F65FD5BD8072C3334321A026DBCBD285C952AEAE452147C187E682AB5F5BE8BB5B64";
+            var prikey = "1B6C12CC6E2A1EC068E758950C8F09DF751C21D556311D034D815F973DDA49BF";
+            var gm = new GMService();
+            var sign = gm.SM2Sign(hex32, prikey);
+            Console.WriteLine(sign);
+            var verify = gm.SM2VerifySign(hex32, sign, pubKey);
+            Assert.IsTrue(verify);
+        }
+
+        [TestMethod()]
+        public void SM2VerifySignTest()
+        {
+            var hex32 = "0102030405060708010203040506070801020304050607080102030405060708";
+            var pubKey = "04CD5D7B6825BFAADB7B018563D9CE85C82B2A8E40426D7FA6D17ED455F093F65FD5BD8072C3334321A026DBCBD285C952AEAE452147C187E682AB5F5BE8BB5B64";
+            var prikey = "1B6C12CC6E2A1EC068E758950C8F09DF751C21D556311D034D815F973DDA49BF";
+            var gm = new GMService();
+            var sign = "CCABEEA31F01D3B3AF4701D0322D01EDC38CD3F4427836875D5B9C9189A1CCC5FF19AA45C899B403D57B4303391B39CBC1F0E4F673E020BA205893E3233E67B1";
+            var verify = gm.SM2VerifySign(hex32, sign, pubKey);
+            Assert.IsTrue(verify);
         }
     }
 }
