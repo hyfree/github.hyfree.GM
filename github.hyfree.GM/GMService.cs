@@ -107,6 +107,7 @@ namespace github.hyfree.GM
         {
             SM4Utils sm4 = new SM4Utils();
             sm4.secretKey = key;
+            
             sm4.iv = iv;
             return sm4.Encrypt_CBC(value, outHex);
         }

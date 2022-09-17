@@ -24,6 +24,7 @@ namespace github.hyfree.GM
 
         }
 
+       
         public  string Hash(string dataHex)
         {
             byte[] md = new byte[32];

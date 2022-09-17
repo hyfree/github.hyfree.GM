@@ -255,6 +255,7 @@ namespace github.hyfree.GM
             {
                 input = padding(input, SM4_ENCRYPT);
             }
+            var hex = HexUtil.ByteArrayToHex(input);
             int i = 0;
             int length = input.Length;
             byte[] bins = new byte[length];
