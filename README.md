@@ -21,3 +21,6 @@
 
 3 https://www.cnblogs.com/Cxiaoao/p/15170345.html
 
+4 建议参考
+
+https://github.com/stoneson/Vive.Crypto/blob/2c62c8f9c3709785696d99ace86a670f69b95b4c/SMCrypto/SM2SignVerUtils.cs#L32
