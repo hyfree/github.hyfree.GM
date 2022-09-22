@@ -60,7 +60,7 @@ namespace github.hyfree.GM
             var dec = SM2Utils.DecryptC1C3C2(data, key);
             return dec;
         }
-        public string SM2Decrypt(string dataHex, string keyHex,bool outHex)
+        public string SM2Decrypt(string dataHex, string keyHex,bool outHex=true)
         {
           var dec= SM2Utils.DecryptC1C3C2(HexUtil.HexToByteArray(keyHex), HexUtil.HexToByteArray(dataHex));
             if (outHex)

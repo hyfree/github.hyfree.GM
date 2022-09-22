@@ -6,25 +6,31 @@ namespace github.hyfree.GM.Tests
     public class GMServiceTests
     {
 
-        string pubK= "04C7D74C7F058330B281A0F8314E92D3DF999D1CF1AA4751CCB2C6E1B84056F22D7093B262388015EDF6D83D922E3FAD6F2021616179CE085D4D74E4D2A0BB2691";
-        string priK= "74D154764491106A6D6B543D2930085874F25624373C72FA654B61E6603661BE";
+        string pubK= "04BB34D657EE7E8490E66EF577E6B3CEA28B739511E787FB4F71B7F38F241D87F18A5A93DF74E90FF94F4EB907F271A36B295B851F971DA5418F4915E2C1A23D6E";
+        string priK= "0B1CE43098BC21B8E82B5C065EDB534CB86532B1900A49D49F3C53762D2997FA";
         [TestMethod()]
         public void SM2EncryptTest()
         {
             var data = "00000000000000000000000000000000";
             GMService gMService = new GMService();
             var enc = gMService.SM2Encrypt(data, pubK);
+
+            var result=gMService.SM2Decrypt(enc,priK,true);
+
             Console.WriteLine(enc);
+            Assert.AreEqual(result,data);
         }
 
         [TestMethod()]
         public void SM2DecryptTest()
         {
-            var data = "04a68d2adbbb5a186de7e26c026f07a9d8039a4f1fe2347e35317261de7757ded5864cca6a1e5c27b1c7ecd05c906867664ce26794f901c24622501dd2e7280df4639e0a1a646997bb33935b5c7f2ad8bc7feca2ac9d77d9e2934749b20d1705678feea82576e7cd9a50d37308b77dfd3df1c126b72b4f068b6c455a503532adcb";
-            var priKey = "811ED43E4D4A716D6192F04A204E6DBDDF1F99EFEE3B6D85C0328B17C5E11612";
+            var data = "04CD527A9EC14E1665E9D48E5D5215C753C5B38592D088B95F0B387078A498421651F8F383837FD9104511F56B44DA76AF28A2B0652A8C81650EAB80A5EF8DE9850DDCEAC471ADE04C6A976E5AC06CF23F504DD59598F5BFBA27384E4954629BFFF77D9309D524D4E236A4767E10918A6B0639B5E3F4F3AA8D8FB047DE3D1F4D1F";
+            //预期的正确大难
+            var expect = "3030303030303030303030303030303030303030303030303030303030303030";
             GMService gMService = new GMService();
-            var dec = gMService.SM2Decrypt(data, priKey, true);
+            var dec = gMService.SM2Decrypt(data, priK, true);
             Console.WriteLine(dec);
+            Assert.AreEqual(dec, expect);
         }
 
         [TestMethod()]
@@ -119,23 +125,7 @@ namespace github.hyfree.GM.Tests
         }
 
 
-        [TestMethod()]
-        public void SM3FileTest()
-        {
-            var data = new byte[8] { 1, 2, 3, 4, 7, 9, 0xFE, 0xFF };
 
-            var gm = new GMService();
-            var sm3 = gm.SM3(data);
-
-            long max = 4 * (1 << 10) * (1 << 10);
-            var stream = File.Open("sm3_file.bin", FileMode.Create);
-            for (int i = 0; i < max; i++)
-            {
-                sm3 = gm.SM3(sm3);
-                stream.Write(sm3, 0, 32);
-            }
-            stream.Close();
-        }
 
         [TestMethod()]
         public void PBKDF2Test()
@@ -189,12 +179,10 @@ namespace github.hyfree.GM.Tests
         public void SM2SignTest()
         {
             var hex32 = "0102030405060708010203040506070801020304050607080102030405060708";
-            var pubKey = "04CD5D7B6825BFAADB7B018563D9CE85C82B2A8E40426D7FA6D17ED455F093F65FD5BD8072C3334321A026DBCBD285C952AEAE452147C187E682AB5F5BE8BB5B64";
-            var prikey = "1B6C12CC6E2A1EC068E758950C8F09DF751C21D556311D034D815F973DDA49BF";
             var gm = new GMService();
-            var sign = gm.SM2Sign(hex32, prikey);
+            var sign = gm.SM2Sign(hex32, priK);
             Console.WriteLine(sign);
-            var verify = gm.SM2VerifySign(hex32, sign, pubKey);
+            var verify = gm.SM2VerifySign(hex32, sign, pubK);
             Assert.IsTrue(verify);
         }
 
@@ -202,11 +190,9 @@ namespace github.hyfree.GM.Tests
         public void SM2VerifySignTest()
         {
             var hex32 = "0102030405060708010203040506070801020304050607080102030405060708";
-            var pubKey = "04CD5D7B6825BFAADB7B018563D9CE85C82B2A8E40426D7FA6D17ED455F093F65FD5BD8072C3334321A026DBCBD285C952AEAE452147C187E682AB5F5BE8BB5B64";
-            var prikey = "1B6C12CC6E2A1EC068E758950C8F09DF751C21D556311D034D815F973DDA49BF";
             var gm = new GMService();
-            var sign = "CCABEEA31F01D3B3AF4701D0322D01EDC38CD3F4427836875D5B9C9189A1CCC5FF19AA45C899B403D57B4303391B39CBC1F0E4F673E020BA205893E3233E67B1";
-            var verify = gm.SM2VerifySign(hex32, sign, pubKey);
+            var sign = "044FF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
+            var verify = gm.SM2VerifySign(hex32, sign, pubK);
             Assert.IsTrue(verify);
         }
     }

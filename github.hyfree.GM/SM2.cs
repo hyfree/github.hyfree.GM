@@ -108,9 +108,9 @@ namespace github.hyfree.GM
             sm3.BlockUpdate(p, 0, p.Length);
 
             // x,y
-            p = userKey.XCoord.ToBigInteger().ToByteArray32();
+            p = userKey.Normalize().XCoord.ToBigInteger().ToByteArray32();
             sm3.BlockUpdate(p, 0, p.Length);
-            p = userKey.YCoord.ToBigInteger().ToByteArray32();
+            p = userKey.Normalize().YCoord.ToBigInteger().ToByteArray32();
             sm3.BlockUpdate(p, 0, p.Length);
 
             // Z

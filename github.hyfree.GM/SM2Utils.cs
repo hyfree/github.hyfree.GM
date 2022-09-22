@@ -45,23 +45,16 @@ namespace github.hyfree.GM
             return kp;
         }
 
-        public static byte[] Sign(byte[] msg, byte[] priKey, byte[] id=null)
+        public static byte[] Sign(byte[] msg, byte[] privateKey, byte[] id=null)
         {
             if (id==null)
             {
-                id=new byte[] { 0x31, 0x32 ,0x33, 0x34, 0x35, 0x36, 0x37, 0x38 ,0x31, 0x32, 0x33, 0x34, 0x35 ,0x36 ,0x37, 0x38 };
+                //31323334353637383132333435363738
+                id = new byte[] { 0x31, 0x32 ,0x33, 0x34, 0x35, 0x36, 0x37, 0x38 ,0x31, 0x32, 0x33, 0x34, 0x35 ,0x36 ,0x37, 0x38 };
             }
-            var sm2Signer = new SM2Signer(new SM3Digest());
-            var sm2Parameter = SM2.Instance;
-            BigInteger userD = new BigInteger(1, priKey);
+            BigInteger userD = new BigInteger(1, privateKey);
 
-            var privateKeyParameters = new ECPrivateKeyParameters(userD, sm2Parameter.ecc_bc_spec);
-            var parametersWithID=new ParametersWithID(privateKeyParameters,id);
-
-
-            sm2Signer.Init(true, privateKeyParameters);
-            sm2Signer.BlockUpdate(msg, 0, msg.Length);
-            return sm2Signer.GenerateSignature();
+            throw new NotImplementedException("此版本不支持SM2签名验签，将在下一个版本支持");
         }
 
         public static bool VerifySign(byte[] msg, byte[] signature, byte[] pucKey, byte[] id = null)
@@ -70,17 +63,9 @@ namespace github.hyfree.GM
             {
                 id = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
             }
-            
-            var sm2Signer = new SM2Signer(new SM3Digest());
-            var sm2Parameter = SM2.Instance;
-            ECPoint userKey = sm2Parameter.ecc_curve.DecodePoint(pucKey);
 
-            var publicKeyParameters= new ECPublicKeyParameters(sm2Parameter.ecc_curve.DecodePoint(pucKey),sm2Parameter.ecc_bc_spec);
-            var parametersWithID = new ParametersWithID(publicKeyParameters, id);
+            throw new NotImplementedException("此版本不支持SM2签名验签，将在下一个版本支持");
 
-            sm2Signer.Init(false, parametersWithID);
-            sm2Signer.BlockUpdate(msg, 0, msg.Length);
-            return sm2Signer.VerifySignature(signature);
         }
 
         public static String Encrypt(byte[] publicKey, byte[] data)
@@ -145,8 +130,8 @@ namespace github.hyfree.GM
             //String sc3 = Encoding.Default.GetString(Hex.Encode(c3));
 
             return c1.GetEncoded()
-                .Concat(source)
-                .Concat(c3).ToArray();
+                 .Concat(c3)
+                .Concat(source).ToArray();
         }
 
         public static byte[] Decrypt(byte[] privateKey, byte[] encryptedData)
