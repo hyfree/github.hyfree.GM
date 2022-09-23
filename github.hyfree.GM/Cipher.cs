@@ -41,13 +41,13 @@ namespace github.hyfree.GM
             byte[] p;
 
 
-            p = p2.XCoord.ToBigInteger().ToByteArray32();
+            p = p2.Normalize().XCoord.ToBigInteger().ToByteArray32();
             
             sm3keybase.BlockUpdate(p, 0, p.Length);
             sm3c3.BlockUpdate(p, 0, p.Length);
 
 
-            p = p2.YCoord.ToBigInteger().ToByteArray32();
+            p = p2.Normalize().YCoord.ToBigInteger().ToByteArray32();
            
             sm3keybase.BlockUpdate(p, 0, p.Length);
 
@@ -117,13 +117,13 @@ namespace github.hyfree.GM
 
         public virtual void Decrypt(byte[] data)
         {
-            var test=HexUtil.ByteArrayToHex(data);
+            
             for (int i = 0; i < data.Length; i++)
             {
                 if (keyOff == key.Length)
                     NextKey();
 
-                var testKey = HexUtil.ByteArrayToHex(key);
+               
                 data[i] ^= key[keyOff++];
             }
             sm3c3.BlockUpdate(data, 0, data.Length);
@@ -132,7 +132,7 @@ namespace github.hyfree.GM
 
         public virtual void Dofinal(byte[] c3)
         {
-            byte[] p = p2.YCoord.ToBigInteger().ToByteArray32();
+            byte[] p = p2.Normalize().YCoord.ToBigInteger().ToByteArray32();
             sm3c3.BlockUpdate(p, 0, p.Length);
             sm3c3.DoFinal(c3, 0);
             Reset();

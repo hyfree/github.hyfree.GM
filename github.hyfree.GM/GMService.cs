@@ -14,15 +14,55 @@ namespace github.hyfree.GM
 {
     public class GMService
     {
-        public string SM2Encrypt(string data, string key)
+
+      
+
+        public  SM2KeyPair   GenerateKeyPair()
         {
-            var enc = SM2Utils.EncryptC1C3C2(HexUtil.HexToByteArray(key),HexUtil.HexToByteArray(data));
-            return enc;
+           return  SM2Utils.GenerateKeyPair();
+        }
+        public string SM2Sign(string msg, string priKey)
+        {
+
+            var sign = SM2Utils.Sign(HexUtil.HexToByteArray(msg), HexUtil.HexToByteArray(priKey), null);
+            return HexUtil.ByteArrayToHex(sign);
+        }
+        public byte[] SM2Sign(byte[] msg, byte[] PriKey )
+        {
+            var sign = SM2Utils.Sign(msg, PriKey, null);
+            return sign;
+        }
+        public bool SM2VerifySign(byte[] msg, byte[] signData, byte[] pubKey)
+        {
+            var verify = SM2Utils.VerifySign(msg,signData,pubKey,null);
+            return verify;
+        }
+        public bool SM2VerifySign(string msg, string signData, string pubKey)
+        {
+            var verify = SM2Utils.VerifySign(HexUtil.HexToByteArray(msg), HexUtil.HexToByteArray(signData), HexUtil.HexToByteArray(pubKey), null);
+            return verify;
         }
 
-        public string SM2Decrypt(string data, string key,bool outHex)
+
+        public string SM2Encrypt(string dataHex, string keyHex)
         {
-          var dec= SM2Utils.DecryptC1C3C2(HexUtil.HexToByteArray(key), HexUtil.HexToByteArray(data));
+
+            var enc = SM2Utils.EncryptC1C3C2(HexUtil.HexToByteArray(keyHex), HexUtil.HexToByteArray(dataHex));
+            return HexUtil.ByteArrayToHex(enc);
+        }
+        public byte[] SM2Encrypt(byte[] data, byte[] key)
+        {
+            var enc = SM2Utils.EncryptC1C3C2(key, data);
+            return enc;
+        }
+        public byte[] SM2Decrypt(byte[] data, byte[] key)
+        {
+            var dec = SM2Utils.DecryptC1C3C2(data, key);
+            return dec;
+        }
+        public string SM2Decrypt(string dataHex, string keyHex,bool outHex=true)
+        {
+          var dec= SM2Utils.DecryptC1C3C2(HexUtil.HexToByteArray(keyHex), HexUtil.HexToByteArray(dataHex));
             if (outHex)
             {
                 var hex = HexUtil.ByteArrayToHex(dec);
