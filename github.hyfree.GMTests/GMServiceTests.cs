@@ -22,24 +22,26 @@ namespace github.hyfree.GM.Tests
             Console.WriteLine(enc);
             Assert.AreEqual(result,data);
         }
-
+        [TestMethod()]
         public void SM2EncryptPerformanceTest()
         {
             byte[] buffer=new byte[4096];
-            var pubkBuffer = HexUtil.HexToByteArray("04F54CEEB470BAFCCE989A98D65BE1AEF562FC0C94DE152A1D658689E1D01692E7BB81C76DBA09CEF76C1386F9E0D02846F3C28BBDB11D697E9DE56341F90B1DE3");
+            var pubkBuffer = HexUtil.HexToByteArray(pubK);
             for (int i = 0; i < 4096; i++)
             {
                 buffer[i] = (byte)(i % 256);
             }
-
             Stopwatch stopwatch=new Stopwatch();
-            stopwatch.Start();
-           
-          
             GMService gMService = new GMService();
-            var enc = gMService.SM2Encrypt(buffer, pubk);
+
+            stopwatch.Start();
+            for (int i = 0; i < 243; i++)
+            {
+                var enc = gMService.SM2Encrypt(buffer, pubkBuffer);
+            }
+           
             stopwatch.Stop();
-            Console.WriteLine(enc);
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod()]
