@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM2
 {
     public class SM2KeyPair
     {

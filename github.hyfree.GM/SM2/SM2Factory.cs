@@ -8,27 +8,29 @@ using Org.BouncyCastle.Security;
 using System.Text;
 using Org.BouncyCastle.Crypto.Digests;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM2
 {
-    public class SM2
+    public class SM2Factory
     {
-        public static SM2 Instance
+        public static SM2Factory Instance
         {
             get
             {
-                return new SM2();
+                return new SM2Factory();
             }
 
         }
-        public static SM2 InstanceTest
+        public static SM2Factory InstanceTest
         {
             get
             {
-                return new SM2();
+                return new SM2Factory();
             }
 
         }
-
+        /// <summary>
+        /// 国密曲线参数
+        /// </summary>
         public static readonly string[] sm2_param = {
             "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFF",// p,0
             "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC",// a,1
@@ -54,7 +56,7 @@ namespace github.hyfree.GM
 
         public readonly ECKeyPairGenerator ecc_key_pair_generator;
 
-        private SM2()
+        private SM2Factory()
         {
             ecc_param = sm2_param;
 
@@ -83,7 +85,75 @@ namespace github.hyfree.GM
             ecc_key_pair_generator = new ECKeyPairGenerator();
             ecc_key_pair_generator.Init(ecc_ecgenparam);
         }
+        public SM2Signature Sm2Sign(byte[] md, BigInteger userD, ECPoint userKey)
+        {
+            BigInteger e = new BigInteger(1, md);
+            BigInteger k = null;
+            ECPoint kp = null;
+            BigInteger r = null;
+            BigInteger s = null;
+            do
+            {
+                do
+                {
+                    // 正式环境
+                    AsymmetricCipherKeyPair keypair = ecc_key_pair_generator.GenerateKeyPair();
+                    ECPrivateKeyParameters ecpriv = (ECPrivateKeyParameters)keypair.Private;
+                    ECPublicKeyParameters ecpub = (ECPublicKeyParameters)keypair.Public;
+                    k = ecpriv.D;
+                    kp = ecpub.Q;
+                    //System.out.println("BigInteger:" + k + "\nECPoint:" + kp);
 
+                    //System.out.println("计算曲线点X1: "+ kp.getXCoord().toBigInteger().toString(16));
+                    //System.out.println("计算曲线点Y1: "+ kp.getYCoord().toBigInteger().toString(16));
+                    //System.out.println("");
+                    // r
+                    r = e.Add(kp.XCoord.ToBigInteger());
+                    r = r.Mod(this.ecc_n);
+                } while (r.Equals(BigInteger.Zero) || r.Add(k).Equals(this.ecc_n) || r.ToString(16).Length != 64);
+
+                // (1 + dA)~-1
+                BigInteger da_1 = userD.Add(BigInteger.One);
+                da_1 = da_1.ModInverse(this.ecc_n);
+                // s
+                s = r.Multiply(userD);
+                s = k.Subtract(s).Mod(this.ecc_n);
+                s = da_1.Multiply(s).Mod(this.ecc_n);
+            } while (s.Equals(BigInteger.Zero) || s.ToString(16).Length != 64);
+            var sM2Signature = new SM2Signature
+            {
+                R = r.ToByteArray32(),
+                S = s.ToByteArray32()
+            };
+            return sM2Signature;
+        }
+
+        public SM2Result Sm2Verify(byte[] md, ECPoint userKey, BigInteger r, BigInteger s)
+        {
+            var sm2Result=new SM2Result();
+          
+            BigInteger e = new BigInteger(1, md);
+            BigInteger t = r.Add(s).Mod(this.ecc_n);
+            if (t.Equals(BigInteger.Zero))
+            {
+                return sm2Result;
+            }
+            else
+            {
+                ECPoint x1y1 = ecc_point_g.Multiply(s);
+                //System.out.println("计算曲线点X0: "+ x1y1.normalize().getXCoord().toBigInteger().toString(16));
+                //System.out.println("计算曲线点Y0: "+ x1y1.normalize().getYCoord().toBigInteger().toString(16));
+                //System.out.println("");
+
+                x1y1 = x1y1.Add(userKey.Multiply(t));
+                //System.out.println("计算曲线点X1: "+ x1y1.normalize().getXCoord().toBigInteger().toString(16));
+                //System.out.println("计算曲线点Y1: "+ x1y1.normalize().getYCoord().toBigInteger().toString(16));
+                //System.out.println("");
+                sm2Result.R = e.Add(x1y1.Normalize().XCoord.ToBigInteger()).Mod(this.ecc_n);
+                //System.out.println("R: " + sm2Result.R.toString(16));
+                return sm2Result;
+            }
+        }
         public virtual byte[] Sm2GetZ(byte[] userId, ECPoint userKey)
         {
             SM3Digest sm3 = new SM3Digest();

@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿using github.hyfree.GM.Common;
+using Org.BouncyCastle.Crypto.Digests;
 
 using System;
 using System.Collections.Generic;

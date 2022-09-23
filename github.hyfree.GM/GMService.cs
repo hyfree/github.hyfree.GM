@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-
+using github.hyfree.GM.Common;
+using github.hyfree.GM.SM2;
 
 namespace github.hyfree.GM
 {
@@ -25,21 +25,27 @@ namespace github.hyfree.GM
         {
 
             var sign = SM2Utils.Sign(HexUtil.HexToByteArray(msg), HexUtil.HexToByteArray(priKey), null);
-            return HexUtil.ByteArrayToHex(sign);
+            return HexUtil.ByteArrayToHex(sign.ToByteArray());
         }
-        public byte[] SM2Sign(byte[] msg, byte[] PriKey )
+        public byte[] SM2Sign(byte[] msg, byte[] PriKey, byte[] userId=null )
         {
-            var sign = SM2Utils.Sign(msg, PriKey, null);
-            return sign;
+            var sign = SM2Utils.Sign(msg, PriKey, userId);
+            return sign.ToByteArray();
         }
-        public bool SM2VerifySign(byte[] msg, byte[] signData, byte[] pubKey)
+        public bool SM2VerifySign(byte[] msg, byte[] signData, byte[] pubKey, byte[] userId = null)
         {
-            var verify = SM2Utils.VerifySign(msg,signData,pubKey,null);
+            var signature=new SM2Signature(signData);
+            var verify = SM2Utils.VerifySign(msg, signature, pubKey, userId);
             return verify;
         }
-        public bool SM2VerifySign(string msg, string signData, string pubKey)
-        {
-            var verify = SM2Utils.VerifySign(HexUtil.HexToByteArray(msg), HexUtil.HexToByteArray(signData), HexUtil.HexToByteArray(pubKey), null);
+        public bool SM2VerifySign(string msg, string signData, string pubKey,string userId= null)
+        {   byte[] userIdBuffer=null;
+            if (userId!=null)
+            {
+                userIdBuffer=HexUtil.HexToByteArray(userId);
+            }
+            var signature = new SM2Signature(HexUtil.HexToByteArray(signData));
+            var verify = SM2Utils.VerifySign(HexUtil.HexToByteArray(msg), signature, HexUtil.HexToByteArray(pubKey), userIdBuffer);
             return verify;
         }
 

@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.Common
 {
-   public class HexUtil
+    public class HexUtil
     {
         public static byte[] XOR(byte[] x, byte[] y)
         {
-            if (x.Length!=y.Length)
+            if (x.Length != y.Length)
             {
                 throw new ArgumentException("x.Length!=y.Length");
             }
@@ -27,7 +27,7 @@ namespace github.hyfree.GM
                 hex.AppendFormat("{0:x2}", b);
             return hex.ToString();
         }
-        public static byte[] HexToByteArray(String hex)
+        public static byte[] HexToByteArray(string hex)
         {
             int NumberChars = hex.Length;
             byte[] bytes = new byte[NumberChars / 2];

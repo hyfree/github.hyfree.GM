@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿using github.hyfree.GM.Common;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
@@ -11,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM2
 {
     public class Cipher
     {
@@ -42,13 +43,13 @@ namespace github.hyfree.GM
 
 
             p = p2.Normalize().XCoord.ToBigInteger().ToByteArray32();
-            
+
             sm3keybase.BlockUpdate(p, 0, p.Length);
             sm3c3.BlockUpdate(p, 0, p.Length);
 
 
             p = p2.Normalize().YCoord.ToBigInteger().ToByteArray32();
-           
+
             sm3keybase.BlockUpdate(p, 0, p.Length);
 
 
@@ -73,7 +74,7 @@ namespace github.hyfree.GM
         }
 
 
-        public virtual ECPoint Init_enc(SM2 sm2, ECPoint userKey)
+        public virtual ECPoint Init_enc(SM2Factory sm2, ECPoint userKey)
         {
             BigInteger k = null;
             ECPoint c1 = null;
@@ -117,13 +118,13 @@ namespace github.hyfree.GM
 
         public virtual void Decrypt(byte[] data)
         {
-            
+
             for (int i = 0; i < data.Length; i++)
             {
                 if (keyOff == key.Length)
                     NextKey();
 
-               
+
                 data[i] ^= key[keyOff++];
             }
             sm3c3.BlockUpdate(data, 0, data.Length);

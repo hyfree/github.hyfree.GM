@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using github.hyfree.GM.Common;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace github.hyfree.GM.Tests
 {
@@ -194,6 +195,13 @@ namespace github.hyfree.GM.Tests
             var sign = "044FF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
             var verify = gm.SM2VerifySign(hex32, sign, pubK);
             Assert.IsTrue(verify);
+            Console.WriteLine("验签1通过");
+            var signFake = "044EF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
+            var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
+            Assert.IsFalse(verify2);
+            Console.WriteLine("验签2通过");
+
+
         }
     }
 }

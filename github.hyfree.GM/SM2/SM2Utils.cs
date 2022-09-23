@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿using Org.BouncyCastle.Asn1.X9;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
@@ -13,62 +14,94 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM2
 {
     public class SM2Utils
     {
-        public static void GenerateKeyPairHex(out string pubKey,out string priKey)
+        public static void GenerateKeyPairHex(out string pubKey, out string priKey)
         {
-            SM2 sm2 = SM2.Instance;
+            SM2Factory sm2 = SM2Factory.Instance;
             AsymmetricCipherKeyPair key = sm2.ecc_key_pair_generator.GenerateKeyPair();
             ECPrivateKeyParameters ecpriv = (ECPrivateKeyParameters)key.Private;
             ECPublicKeyParameters ecpub = (ECPublicKeyParameters)key.Public;
             BigInteger privateKey = ecpriv.D;
             ECPoint publicKey = ecpub.Q;
-            pubKey= Encoding.Default.GetString(Hex.Encode(publicKey.GetEncoded())).ToUpper();
-            priKey= Encoding.Default.GetString(Hex.Encode(privateKey.ToByteArray32())).ToUpper();
-            
+            pubKey = Encoding.Default.GetString(Hex.Encode(publicKey.GetEncoded())).ToUpper();
+            priKey = Encoding.Default.GetString(Hex.Encode(privateKey.ToByteArray32())).ToUpper();
+
         }
 
         public static SM2KeyPair GenerateKeyPair()
         {
-            SM2 sm2 = SM2.Instance;
-            AsymmetricCipherKeyPair key = sm2.ecc_key_pair_generator.GenerateKeyPair();
+            SM2Factory sm2Parameters = SM2Factory.Instance;
+            AsymmetricCipherKeyPair key = sm2Parameters.ecc_key_pair_generator.GenerateKeyPair();
             ECPrivateKeyParameters ecpriv = (ECPrivateKeyParameters)key.Private;
             ECPublicKeyParameters ecpub = (ECPublicKeyParameters)key.Public;
             BigInteger privateKey = ecpriv.D;
             ECPoint publicKey = ecpub.Q;
 
-            SM2KeyPair kp=new SM2KeyPair();
-            kp.PubKey= publicKey.GetEncoded();
-            kp.PriKey= privateKey.ToByteArray32();
+            SM2KeyPair kp = new SM2KeyPair();
+            kp.PubKey = publicKey.GetEncoded();
+            kp.PriKey = privateKey.ToByteArray32();
             return kp;
         }
 
-        public static byte[] Sign(byte[] msg, byte[] privateKey, byte[] id=null)
+        public static SM2Signature Sign(byte[] msg, byte[] privateKey, byte[] userId = null)
         {
-            if (id==null)
+            if (userId == null)
             {
                 //31323334353637383132333435363738
-                id = new byte[] { 0x31, 0x32 ,0x33, 0x34, 0x35, 0x36, 0x37, 0x38 ,0x31, 0x32, 0x33, 0x34, 0x35 ,0x36 ,0x37, 0x38 };
+                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
             }
             BigInteger userD = new BigInteger(1, privateKey);
+            SM2Factory sm2Factory = SM2Factory.Instance;
 
-            throw new NotImplementedException("此版本不支持SM2签名验签，将在下一个版本支持");
+            ECPoint userKey = sm2Factory.ecc_point_g.Multiply(userD);
+            SM3Digest sm3Digest = new SM3Digest();
+            var z = sm2Factory.Sm2GetZ(userId, userKey);
+            sm3Digest.BlockUpdate(z, 0, z.Length);
+            sm3Digest.BlockUpdate(msg, 0, msg.Length);
+            var md = new byte[32];
+            sm3Digest.DoFinal(md, 0);
+          
+            var result= sm2Factory.Sm2Sign(md,userD,userKey);
+
+
+           return result;
+
         }
 
-        public static bool VerifySign(byte[] msg, byte[] signature, byte[] pucKey, byte[] id = null)
+        public static bool VerifySign(byte[] msg, SM2Signature sm2Signature, byte[] pubKey, byte[] userId = null)
         {
-            if (id == null)
+            
+            if (userId == null)
             {
-                id = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
+                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
             }
+            SM2Factory factory = SM2Factory.Instance;
+            ECPoint userKey = factory.ecc_curve.DecodePoint(pubKey);
+            SM3Digest sm3Digest = new SM3Digest();
+            var z = factory.Sm2GetZ(userId, userKey);
+            sm3Digest.BlockUpdate(z, 0, z.Length);
+            sm3Digest.BlockUpdate(msg, 0, msg.Length);
+            byte[] md = new byte[32];
+            sm3Digest.DoFinal(md, 0);
 
-            throw new NotImplementedException("此版本不支持SM2签名验签，将在下一个版本支持");
+            var r=new BigInteger(sm2Signature.R);
+            var s=new BigInteger(sm2Signature.S);
+            var sm2Result=new SM2Result();
+            sm2Result= factory.Sm2Verify(md,userKey, r,s);
+            if (sm2Result.R==null)
+            {
+                return false;
+            }
+            var verifyFlag = sm2Result.R.Equals(r);
+
+            return verifyFlag;
 
         }
 
-        public static String Encrypt(byte[] publicKey, byte[] data)
+        public static string Encrypt(byte[] publicKey, byte[] data)
         {
             if (null == publicKey || publicKey.Length == 0)
             {
@@ -83,7 +116,7 @@ namespace github.hyfree.GM
             Array.Copy(data, 0, source, 0, data.Length);
 
             Cipher cipher = new Cipher();
-            SM2 sm2 = SM2.Instance;
+            SM2Factory sm2 = SM2Factory.Instance;
 
             ECPoint userKey = sm2.ecc_curve.DecodePoint(publicKey);
 
@@ -93,9 +126,9 @@ namespace github.hyfree.GM
             byte[] c3 = new byte[32];
             cipher.Dofinal(c3);
 
-            String sc1 = Encoding.Default.GetString(Hex.Encode(c1.GetEncoded()));
-            String sc2 = Encoding.Default.GetString(Hex.Encode(source));
-            String sc3 = Encoding.Default.GetString(Hex.Encode(c3));
+            string sc1 = Encoding.Default.GetString(Hex.Encode(c1.GetEncoded()));
+            string sc2 = Encoding.Default.GetString(Hex.Encode(source));
+            string sc3 = Encoding.Default.GetString(Hex.Encode(c3));
 
             return (sc1 + sc2 + sc3).ToUpper();
         }
@@ -115,11 +148,11 @@ namespace github.hyfree.GM
             Array.Copy(data, 0, source, 0, data.Length);
 
             Cipher cipher = new Cipher();
-            SM2 sm2 = SM2.Instance;
+            SM2Factory sm2Parameters = SM2Factory.Instance;
 
-            ECPoint userKey = sm2.ecc_curve.DecodePoint(publicKey);
+            ECPoint userKey = sm2Parameters.ecc_curve.DecodePoint(publicKey);
 
-            ECPoint c1 = cipher.Init_enc(sm2, userKey);
+            ECPoint c1 = cipher.Init_enc(sm2Parameters, userKey);
             cipher.Encrypt(source);
 
             byte[] c3 = new byte[32];
@@ -145,14 +178,14 @@ namespace github.hyfree.GM
                 return null;
             }
 
-            String data = Encoding.Default.GetString(Hex.Encode(encryptedData));
+            string data = Encoding.Default.GetString(Hex.Encode(encryptedData));
 
             byte[] c1Bytes = Hex.Decode(Encoding.Default.GetBytes(data.Substring(0, 130)));
             int c2Len = encryptedData.Length - 97;
             byte[] c2 = Hex.Decode(Encoding.Default.GetBytes(data.Substring(130, 2 * c2Len)));
             byte[] c3 = Hex.Decode(Encoding.Default.GetBytes(data.Substring(130 + 2 * c2Len, 64)));
 
-            SM2 sm2 = SM2.Instance;
+            SM2Factory sm2 = SM2Factory.Instance;
             BigInteger userD = new BigInteger(1, privateKey);
 
             ECPoint c1 = sm2.ecc_curve.DecodePoint(c1Bytes);
@@ -185,7 +218,7 @@ namespace github.hyfree.GM
             byte[] c3 = encryptedData.Skip(65).Take(32).ToArray();
             byte[] c2 = encryptedData.Skip(97).ToArray();
 
-            SM2 sm2 = SM2.Instance;
+            SM2Factory sm2 = SM2Factory.Instance;
             BigInteger userD = new BigInteger(1, privateKey);
 
             ECPoint c1 = sm2.ecc_curve.DecodePoint(c1Bytes);
