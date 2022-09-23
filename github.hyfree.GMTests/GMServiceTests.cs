@@ -1,6 +1,8 @@
 ﻿using github.hyfree.GM.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using System.Diagnostics;
+
 namespace github.hyfree.GM.Tests
 {
     [TestClass()]
@@ -20,6 +22,27 @@ namespace github.hyfree.GM.Tests
 
             Console.WriteLine(enc);
             Assert.AreEqual(result,data);
+        }
+        [TestMethod()]
+        public void SM2EncryptPerformanceTest()
+        {
+            byte[] buffer=new byte[4096];
+            var pubkBuffer = HexUtil.HexToByteArray(pubK);
+            for (int i = 0; i < 4096; i++)
+            {
+                buffer[i] = (byte)(i % 256);
+            }
+            Stopwatch stopwatch=new Stopwatch();
+            GMService gMService = new GMService();
+
+            stopwatch.Start();
+            for (int i = 0; i < 243; i++)
+            {
+                var enc = gMService.SM2Encrypt(buffer, pubkBuffer);
+            }
+           
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
         [TestMethod()]
