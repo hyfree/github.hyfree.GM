@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using github.hyfree.GM.Common;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM4
 {
-    public  class SM4Utils
+    public class SM4Utils
     {
-        public String secretKey = "";
-        public String iv = "";
+        public string secretKey = "";
+        public string iv = "";
         public bool hexString = true;//默认使用Hex
 
-        public String Encrypt_ECB(String plainText)
+        public string Encrypt_ECB(string plainText)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
@@ -33,11 +33,11 @@ namespace github.hyfree.GM
             sm4.sm4_setkey_enc(ctx, keyBytes);
             byte[] encrypted = sm4.sm4_crypt_ecb(ctx, Encoding.Default.GetBytes(plainText));
 
-            String cipherText = Encoding.Default.GetString(encrypted);
+            string cipherText = Encoding.Default.GetString(encrypted);
             return cipherText;
         }
 
-        public String Decrypt_ECB(String cipherText)
+        public string Decrypt_ECB(string cipherText)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
@@ -58,7 +58,7 @@ namespace github.hyfree.GM
             byte[] decrypted = sm4.sm4_crypt_ecb(ctx, HexUtil.HexToByteArray(cipherText));
             return Encoding.Default.GetString(decrypted);
         }
-        public String Encrypt_CBC(String HexString,bool outHex)
+        public string Encrypt_CBC(string HexString, bool outHex)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
@@ -86,13 +86,13 @@ namespace github.hyfree.GM
             }
             else
             {
-                String cipherText = Encoding.Default.GetString((encrypted));
+                string cipherText = Encoding.Default.GetString(encrypted);
                 return cipherText;
             }
-            
+
         }
 
-        public String Decrypt_CBC(String cipherText,bool outHex=false)
+        public string Decrypt_CBC(string cipherText, bool outHex = false)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
@@ -124,7 +124,7 @@ namespace github.hyfree.GM
                 return Encoding.Default.GetString(decrypted);
 
             }
-           
+
         }
 
         //[STAThread]

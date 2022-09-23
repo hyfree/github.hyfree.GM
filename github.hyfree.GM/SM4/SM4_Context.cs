@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM4
 {
     class SM4_Context
     {
@@ -16,9 +16,9 @@ namespace github.hyfree.GM
 
         public SM4_Context()
         {
-            this.mode = 1;
-            this.isPadding = true;
-            this.sk = new long[32];
+            mode = 1;
+            isPadding = true;
+            sk = new long[32];
         }
     }
 }

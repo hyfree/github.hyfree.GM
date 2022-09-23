@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM3
 {
     public class SM3Util
     {
@@ -20,13 +20,13 @@ namespace github.hyfree.GM
             sm3.BlockUpdate(msg1, 0, msg1.Length);
             sm3.DoFinal(md, 0);
 
-         
+
             return md;
 
         }
 
-       
-        public  string Hash(string dataHex)
+
+        public string Hash(string dataHex)
         {
             byte[] md = new byte[32];
             byte[] msg1 = HexUtil.HexToByteArray(dataHex);
@@ -43,12 +43,12 @@ namespace github.hyfree.GM
         public byte[] Hmac(byte[] input, byte[] sm3_key)
         {
             var BLOCK_LENGTH = 64;
-            var structured_key=new byte[BLOCK_LENGTH];
-            
-            var IPAD=new byte[BLOCK_LENGTH];
-            var OPAD=new byte[BLOCK_LENGTH];
+            var structured_key = new byte[BLOCK_LENGTH];
 
-          
+            var IPAD = new byte[BLOCK_LENGTH];
+            var OPAD = new byte[BLOCK_LENGTH];
+
+
 
             //1 密钥填充
             if (sm3_key.Length > BLOCK_LENGTH)

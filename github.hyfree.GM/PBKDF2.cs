@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using github.hyfree.GM.Common;
+using github.hyfree.GM.SM3;
 
 namespace github.hyfree.GM
 {

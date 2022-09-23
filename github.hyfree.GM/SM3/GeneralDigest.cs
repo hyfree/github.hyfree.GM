@@ -4,7 +4,7 @@ using System.Text;
 using Org.BouncyCastle.Crypto;
 
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.SM3
 {
     public abstract class GeneralDigest : IDigest
     {
@@ -50,7 +50,7 @@ namespace github.hyfree.GM
             //
             // fill the current word
             //
-            while ((xBufOff != 0) && (length > 0))
+            while (xBufOff != 0 && length > 0)
             {
                 Update(input[inOff]);
                 inOff++;
@@ -83,14 +83,14 @@ namespace github.hyfree.GM
 
         public void Finish()
         {
-            long bitLength = (byteCount << 3);
+            long bitLength = byteCount << 3;
 
             //
             // add the pad bytes.
             //
-            Update(unchecked((byte)128));
+            Update(unchecked(128));
 
-            while (xBufOff != 0) Update(unchecked((byte)0));
+            while (xBufOff != 0) Update(unchecked(0));
             ProcessLength(bitLength);
             ProcessBlock();
         }
