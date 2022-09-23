@@ -13,7 +13,7 @@ namespace github.hyfree.GM
         public static byte[] ToByteArray32(this BigInteger bigInteger)
         {
             //0098025f5dcbbb67ac06951c86d31db9ab983ceb6d57cc615d54398d66a15a7600
-            var byteData = bigInteger.ToByteArray();
+            var byteData = bigInteger.ToByteArrayUnsigned();
             if (byteData==null)
             {
                 throw new ArgumentNullException("bigInteger is null");

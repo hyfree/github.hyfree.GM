@@ -87,8 +87,8 @@ namespace github.hyfree.GM.SM2
             byte[] md = new byte[32];
             sm3Digest.DoFinal(md, 0);
 
-            var r=new BigInteger(sm2Signature.R);
-            var s=new BigInteger(sm2Signature.S);
+            var r=new BigInteger(1,sm2Signature.R);
+            var s=new BigInteger(1,sm2Signature.S);
             var sm2Result=new SM2Result();
             sm2Result= factory.Sm2Verify(md,userKey, r,s);
             if (sm2Result.R==null)
