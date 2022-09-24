@@ -12,12 +12,12 @@ namespace github.hyfree.GM.PBKDF
 
         int hLen = 32;
         int r = 0;
-        public byte[] PBDKF2(byte[] passowrd, byte[] salt, int c, int dkLen)
+        public byte[] PBDKF2(byte[] password, byte[] salt, int c, int dkLen)
         {
 
             if (dkLen < hLen)
             {
-                var t1 = F(passowrd, salt, c, 1);
+                var t1 = F(password, salt, c, 1);
                 var dk = new byte[dkLen];
                 Array.Copy(t1, 0, dk, 0, dkLen);
                 return dk;
@@ -33,10 +33,10 @@ namespace github.hyfree.GM.PBKDF
 
                 for (int i = 1; i < block + 1; i++)
                 {
-                    var ti = F(passowrd, salt, c, i);
+                    var ti = F(password, salt, c, i);
                     dk.AddRange(ti);
                 }
-                var tLast = F(passowrd, salt, c, block + 1);
+                var tLast = F(password, salt, c, block + 1);
                 var tLastyu = new byte[r];
                 Array.Copy(tLast, 0, tLastyu, 0, r);
                 dk.AddRange(tLastyu);
