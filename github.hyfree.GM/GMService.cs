@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using github.hyfree.GM.Common;
+using github.hyfree.GM.PBKDF;
 using github.hyfree.GM.SM2;
 using github.hyfree.GM.SM3;
 using github.hyfree.GM.SM4;

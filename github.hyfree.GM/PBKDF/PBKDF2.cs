@@ -5,7 +5,7 @@ using System.Text;
 using github.hyfree.GM.Common;
 using github.hyfree.GM.SM3;
 
-namespace github.hyfree.GM
+namespace github.hyfree.GM.PBKDF
 {
     public class PBKDF2
     {
@@ -84,7 +84,7 @@ namespace github.hyfree.GM
         public byte[] Hmac(byte[] key, byte[] data)
         {
             SM3Util sm3 = new SM3Util();
-            byte[] hash = sm3.Hmac(input: data,sm3_key: key);
+            byte[] hash = sm3.Hmac(input: data, sm3_key: key);
             return hash;
 
         }
@@ -106,9 +106,9 @@ namespace github.hyfree.GM
         {
             byte[] src = new byte[4];
 
-            src[0] = (byte)((value >> 24) & 0xFF);
-            src[1] = (byte)((value >> 16) & 0xFF);
-            src[2] = (byte)((value >> 8) & 0xFF);
+            src[0] = (byte)(value >> 24 & 0xFF);
+            src[1] = (byte)(value >> 16 & 0xFF);
+            src[2] = (byte)(value >> 8 & 0xFF);
             src[3] = (byte)(value & 0xFF);
 
             return src;
