@@ -9,15 +9,15 @@ namespace github.hyfree.GM.HDKF
 {
     public class HKDFUtil
     {
-        int HLen=32;
-        public byte[] HKDF_Extract(byte[] iKM, byte[] salt)
+         static  int HLen=32;
+        public static byte[] HKDF_Extract(byte[] iKM, byte[] salt)
         {
             SM3Util sM3Util = new SM3Util();
             var PRF = sM3Util.Hmac(iKM, salt);
             return PRF;
         }
 
-        public byte[] HKDF_Expand(byte[] prk, byte[] info,int L)
+        public static byte[] HKDF_Expand(byte[] prk, byte[] info,int L)
         {
             var t=new byte[0];
             var okm=new byte[0];
@@ -31,7 +31,7 @@ namespace github.hyfree.GM.HDKF
             return okm.Take(L).ToArray();
 
         }
-        public byte[] HKDF(byte[] ikm, byte[] salt, byte[] info,int len)
+        public static byte[] HKDF(byte[] ikm, byte[] salt, byte[] info,int len)
         {
             var prk=HKDF_Extract(ikm,salt);
             var okm=HKDF_Expand(prk,info,len);
