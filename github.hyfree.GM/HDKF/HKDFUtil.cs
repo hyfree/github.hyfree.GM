@@ -7,7 +7,7 @@ using System.Text;
 
 namespace github.hyfree.GM.HDKF
 {
-    public class HKDF
+    public class HKDFUtil
     {
         int HLen=32;
         public byte[] HKDF_Extract(byte[] iKM, byte[] salt)
@@ -28,8 +28,14 @@ namespace github.hyfree.GM.HDKF
                 t=sM3Util.Hmac(prk, t.Concat(info).Concat(new byte[] {(byte)(i+1)}).ToArray());
                 okm=okm.Concat(t).ToArray();
             }
-            return okm;
+            return okm.Take(L).ToArray();
 
+        }
+        public byte[] HKDF(byte[] ikm, byte[] salt, byte[] info,int len)
+        {
+            var prk=HKDF_Extract(ikm,salt);
+            var okm=HKDF_Expand(prk,info,len);
+            return okm;
         }
     }
 }
