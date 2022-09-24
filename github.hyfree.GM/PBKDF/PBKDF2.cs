@@ -7,12 +7,12 @@ using github.hyfree.GM.SM3;
 
 namespace github.hyfree.GM.PBKDF
 {
-    public class PBKDF2
+    public class PBKDF2Util
     {
 
         int hLen = 32;
         int r = 0;
-        public byte[] Generate(byte[] passowrd, byte[] salt, int c, int dkLen)
+        public byte[] PBDKF2(byte[] passowrd, byte[] salt, int c, int dkLen)
         {
 
             if (dkLen < hLen)

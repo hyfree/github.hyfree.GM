@@ -138,13 +138,13 @@ namespace github.hyfree.GM
         }
         public byte[] PBKDF2_SM3(byte[] passowrd, byte[] salt, int c, int dkLen)
         {
-            PBKDF2 pbkdf = new PBKDF2();
-            return  pbkdf.Generate(passowrd, salt, c, dkLen);
+            PBKDF2Util pbkdf = new PBKDF2Util();
+            return  pbkdf.PBDKF2(passowrd, salt, c, dkLen);
         }
         public string PBKDF2_SM3(string  passowrd, string salt, int c, int dkLen)
         {
-            PBKDF2 pbkdf = new PBKDF2();
-            var result= pbkdf.Generate(HexUtil.HexToByteArray(passowrd), HexUtil.HexToByteArray(salt), c, dkLen);
+            PBKDF2Util pbkdf = new PBKDF2Util();
+            var result= pbkdf.PBDKF2(HexUtil.HexToByteArray(passowrd), HexUtil.HexToByteArray(salt), c, dkLen);
             return HexUtil.ByteArrayToHex(result);
         }
 
