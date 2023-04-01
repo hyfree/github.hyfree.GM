@@ -110,16 +110,19 @@ namespace github.hyfree.GM
             return HexUtil.ByteArrayToHex(result);
         }
 
-
-
-        public string SM4_Encrypt_CBC(string value, string key,string iv,bool outHex)
+        public byte[] SM4_Encrypt_CBC(byte[] value, byte[] key, byte[] iv)
         {
             SM4Utils sm4 = new SM4Utils();
             sm4.secretKey = key;
-            
+
             sm4.iv = iv;
-            return sm4.Encrypt_CBC(value, outHex);
+            var buffer= sm4.Encrypt_CBC(value);
+           return buffer;
+
         }
+
+
+     
         /// <summary>
         ///  SM4解密
         /// </summary>
@@ -128,13 +131,13 @@ namespace github.hyfree.GM
         /// <param name="iv">初始向量</param>
         /// <param name="outHex">解密结果输出为utf8字符串还是Hex字符串</param>
         /// <returns></returns>
-        public string SM4_Decrypt_CBC(string data, string key,string iv, bool outHex)
+        public byte[] SM4_Decrypt_CBC(byte[] data, byte[] key,byte[] iv)
         {
             SM4Utils sm4 = new SM4Utils();
             sm4.secretKey = key;
             sm4.iv = iv;
             
-            return sm4.Decrypt_CBC(data, outHex);
+            return sm4.Decrypt_CBC(data);
         }
         public byte[] PBKDF2_SM3(byte[] passowrd, byte[] salt, int c, int dkLen)
         {
@@ -147,7 +150,23 @@ namespace github.hyfree.GM
             var result= pbkdf.PBDKF2(HexUtil.HexToByteArray(passowrd), HexUtil.HexToByteArray(salt), c, dkLen);
             return HexUtil.ByteArrayToHex(result);
         }
-
-
+        
+        private string GetOutputFormat(byte[] buffer, OutputFormat outputFormat)
+        {
+            switch (outputFormat)
+            {
+                case OutputFormat.UTF8:
+                    return Encoding.UTF8.GetString(buffer);
+                case OutputFormat.ASCII:
+                    return Encoding.ASCII.GetString(buffer);
+                case OutputFormat.Hex:
+                    return HexUtil.ByteArrayToHex(buffer);
+                case OutputFormat.Base64:
+                    return Convert.ToBase64String(buffer);
+                default:
+                    return null;
+            }
+        }
     }
+
 }

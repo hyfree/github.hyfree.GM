@@ -9,121 +9,61 @@ namespace github.hyfree.GM.SM4
 {
     public class SM4Utils
     {
-        public string secretKey = "";
-        public string iv = "";
+        public byte[] secretKey ;
+        public byte[] iv ;
         public bool hexString = true;//默认使用Hex
 
-        public string Encrypt_ECB(string plainText)
+        public string Encrypt_ECB(byte[] plainText)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
             ctx.mode = SM4.SM4_ENCRYPT;
 
-            byte[] keyBytes;
-            if (hexString)
-            {
-                keyBytes = HexUtil.HexToByteArray(secretKey);
-            }
-            else
-            {
-                keyBytes = Encoding.Default.GetBytes(secretKey);
-            }
+            byte[] keyBytes= secretKey;
+          
 
             SM4 sm4 = new SM4();
             sm4.sm4_setkey_enc(ctx, keyBytes);
-            byte[] encrypted = sm4.sm4_crypt_ecb(ctx, Encoding.Default.GetBytes(plainText));
+            byte[] encrypted = sm4.sm4_crypt_ecb(ctx, plainText);
 
             string cipherText = Encoding.Default.GetString(encrypted);
             return cipherText;
         }
 
-        public string Decrypt_ECB(string cipherText)
-        {
-            SM4_Context ctx = new SM4_Context();
-            ctx.isPadding = true;
-            ctx.mode = SM4.SM4_DECRYPT;
 
-            byte[] keyBytes;
-            if (hexString)
-            {
-                keyBytes = HexUtil.HexToByteArray(secretKey);
-            }
-            else
-            {
-                keyBytes = Encoding.Default.GetBytes(secretKey);
-            }
-
-            SM4 sm4 = new SM4();
-            sm4.sm4_setkey_dec(ctx, keyBytes);
-            byte[] decrypted = sm4.sm4_crypt_ecb(ctx, HexUtil.HexToByteArray(cipherText));
-            return Encoding.Default.GetString(decrypted);
-        }
-        public string Encrypt_CBC(string HexString, bool outHex)
+        public byte[] Encrypt_CBC(byte[] plainText)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
             ctx.mode = SM4.SM4_ENCRYPT;
 
-            byte[] keyBytes;
-            byte[] ivBytes;
-            if (hexString)
-            {
-                keyBytes = HexUtil.HexToByteArray(secretKey);
-                ivBytes = HexUtil.HexToByteArray(iv);
-            }
-            else
-            {
-                keyBytes = Encoding.Default.GetBytes(secretKey);
-                ivBytes = Encoding.Default.GetBytes(iv);
-            }
+            byte[] keyBytes = secretKey;
+            byte[] ivBytes=iv;
+           
 
             SM4 sm4 = new SM4();
             sm4.sm4_setkey_enc(ctx, keyBytes);
-            byte[] encrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, HexUtil.HexToByteArray(HexString));
-            if (outHex)
-            {
-                return HexUtil.ByteArrayToHex(encrypted);
-            }
-            else
-            {
-                string cipherText = Encoding.Default.GetString(encrypted);
-                return cipherText;
-            }
+            byte[] encrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, plainText);
+            return encrypted;
 
         }
 
-        public string Decrypt_CBC(string cipherText, bool outHex = false)
+   
+
+        public byte[] Decrypt_CBC(byte[] cipherText)
         {
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
             ctx.mode = SM4.SM4_DECRYPT;
 
-            byte[] keyBytes;
-            byte[] ivBytes;
-            if (hexString)
-            {
-                keyBytes = HexUtil.HexToByteArray(secretKey);
-                ivBytes = HexUtil.HexToByteArray(iv);
-            }
-            else
-            {
-                keyBytes = Encoding.Default.GetBytes(secretKey);
-                ivBytes = Encoding.Default.GetBytes(iv);
-            }
+            byte[] keyBytes = secretKey;
+            byte[] ivBytes = iv;
+           
 
             SM4 sm4 = new SM4();
             sm4.sm4_setkey_dec(ctx, keyBytes);
-            byte[] decrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, HexUtil.HexToByteArray(cipherText));
-            if (outHex)
-            {
-                return HexUtil.ByteArrayToHex(decrypted);
-
-            }
-            else
-            {
-                return Encoding.Default.GetString(decrypted);
-
-            }
+            byte[] decrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, cipherText);
+            return decrypted;
 
         }
 

@@ -65,7 +65,7 @@ namespace github.hyfree.GM.Tests
             var iv = "00000000000000000000000000000000";//测试用途
             var expect = "3030303030303030303030303030303030303030303030303030303030303030";
             GMService gMService = new GMService();
-            var dec = gMService.SM4_Decrypt_CBC(data, key, iv, true);
+            var dec = gMService.SM4_Decrypt_CBC(data.HexToByteArray(), key.HexToByteArray(), iv.HexToByteArray()).ByteArrayToHex();
             Console.WriteLine(dec);
             Assert.AreEqual(dec, expect);
         }
@@ -78,7 +78,7 @@ namespace github.hyfree.GM.Tests
             var key = "00000000000000000000000000000000";
             var iv = "00000000000000000000000000000000";//测试用途
             GMService gMService = new GMService();
-            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            var enc = gMService.SM4_Encrypt_CBC(data.HexToByteArray(), key.HexToByteArray(), iv.HexToByteArray()).ByteArrayToHex();
             enc = enc.ToUpper();
             //期望数据
             var expect = "b7d8fd16a6469166af53594a09f94a67a94b6cdea71f7acaa342e2ad9635b090c4b6918401bcb76ef414bad5c41fd685";
@@ -95,7 +95,7 @@ namespace github.hyfree.GM.Tests
             var key = "8b625fa71322d93058150d65c1257701";
             var iv = "00000000000000000000000000000000";//测试用途
             GMService gMService = new GMService();
-            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            var enc = gMService.SM4_Encrypt_CBC(data.HexToByteArray(), key.HexToByteArray(), iv.HexToByteArray()).ByteArrayToHex();
             enc = enc.ToUpper();
             //期望数据
             var expect = "B733A460FF310A259566E910B4A5D8E95D117E570F65562BB65B5A50B7275400";
@@ -112,7 +112,7 @@ namespace github.hyfree.GM.Tests
             var key = "8b625fa71322d93058150d65c1257701";
             var iv = "00000000000000000000000000000000";//测试用途
             GMService gMService = new GMService();
-            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            var enc = gMService.SM4_Encrypt_CBC(data.HexToByteArray(), key.HexToByteArray(), iv.HexToByteArray()).ByteArrayToHex();
             enc = enc.ToUpper();
             //期望数据
             var expect = "B733A460FF310A259566E910B4A5D8E949D03616A91F0F65BE0732C28C987F97";
@@ -129,7 +129,7 @@ namespace github.hyfree.GM.Tests
             var key = "8b625fa71322d93058150d65c1257701";
             var iv = "00000000000000000000000000000000";//测试用途
             GMService gMService = new GMService();
-            var enc = gMService.SM4_Encrypt_CBC(data, key, iv, true);
+            var enc = gMService.SM4_Encrypt_CBC(data.HexToByteArray(), key.HexToByteArray(), iv.HexToByteArray()).ByteArrayToHex();
             enc = enc.ToUpper();
             //期望数据
             var expect = "ED684A40910B5DC0C7C1B167B9149594";
