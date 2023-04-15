@@ -11,7 +11,7 @@ namespace github.hyfree.GM.SM4
     {
         public byte[] secretKey ;
         public byte[] iv ;
-        public bool hexString = true;//默认使用Hex
+        //public bool hexString = true;//默认使用Hex
 
         public string Encrypt_ECB(byte[] plainText)
         {

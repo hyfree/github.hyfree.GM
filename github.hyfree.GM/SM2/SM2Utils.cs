@@ -203,7 +203,7 @@ namespace github.hyfree.GM.SM2
         /// <param name="privateKey">私钥</param>
         /// <param name="encryptedData">加密数据，前面必须有04</param>
         /// <returns></returns>
-        public static byte[] DecryptC1C3C2(byte[] privateKey, byte[] encryptedData)
+        public static byte[] DecryptC1C3C2(byte[] encryptedData, byte[] privateKey)
         {
             if (null == privateKey || privateKey.Length == 0)
             {

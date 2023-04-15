@@ -9,10 +9,13 @@ namespace github.hyfree.GM.HDKF
 {
     public class HKDFUtil
     {
-         static  int HLen=32;
+        const  int HLen=32;
         public static byte[] HKDF_Extract(byte[] iKM, byte[] salt)
         {
             SM3Util sM3Util = new SM3Util();
+            //prk = HKDF-Extract(H, salt, IKM) = HMAC-Hash(H, salt, IKM)
+            //其实就相当于用salt作为HMAC - Hash的K，对IKM进行消息完整性认证
+            //使用salt增加IKM的随机性
             var PRF = sM3Util.Hmac(iKM, salt);
             return PRF;
         }

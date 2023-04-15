@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using github.hyfree.GM.Common;
+using github.hyfree.GM.HDKF;
 using github.hyfree.GM.PBKDF;
 using github.hyfree.GM.SM2;
 using github.hyfree.GM.SM3;
@@ -17,8 +18,21 @@ namespace github.hyfree.GM
 {
     public class GMService
     {
-
-      
+        /// <summary>
+        /// HDKF：　　HKDF的主要目的使用原始的密钥材料,派生出一个或更多个能达到密码学强度的密钥(主要是保证随机性)—
+        /// 就是将较短的密钥材料扩展成较长的密钥材料，过程中需要保证随机性。
+        /// </summary>
+        /// <param name="ikm">密钥材料</param>
+        /// <param name="salt">盐</param>
+        /// <param name="info">消息</param>
+        /// <param name="len">派生长度</param>
+        /// <returns></returns>
+        public byte[] HKDF(byte[] ikm, byte[] salt, byte[] info, int len)
+        {
+            var prk = HKDFUtil.HKDF_Extract(ikm, salt);
+            var okm = HKDFUtil.HKDF_Expand(prk, info, len);
+            return okm;
+        }
 
         public  SM2KeyPair   GenerateKeyPair()
         {
@@ -71,7 +85,7 @@ namespace github.hyfree.GM
         }
         public string SM2Decrypt(string dataHex, string keyHex,bool outHex=true)
         {
-          var dec= SM2Utils.DecryptC1C3C2(HexUtil.HexToByteArray(keyHex), HexUtil.HexToByteArray(dataHex));
+          var dec= SM2Utils.DecryptC1C3C2( HexUtil.HexToByteArray(dataHex), HexUtil.HexToByteArray(keyHex));
             if (outHex)
             {
                 var hex = HexUtil.ByteArrayToHex(dec);
@@ -83,6 +97,13 @@ namespace github.hyfree.GM
             }
         }
 
+        public string SM3String(string str)
+        {
+            var data=Encoding.UTF8.GetBytes(str);
+            SM3Util sm3 = new SM3Util();
+            var result = sm3.Hash(data);
+            return result.ByteArrayToHex();
+        }
         public string SM3(string hex)
         {
             SM3Util sm3 = new SM3Util();
