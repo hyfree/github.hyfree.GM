@@ -22,13 +22,14 @@ namespace github.hyfree.GM
         /// HDKF：　　HKDF的主要目的使用原始的密钥材料,派生出一个或更多个能达到密码学强度的密钥(主要是保证随机性)—
         /// 就是将较短的密钥材料扩展成较长的密钥材料，过程中需要保证随机性。
         /// </summary>
-        /// <param name="ikm">密钥材料</param>
-        /// <param name="salt">盐</param>
-        /// <param name="info">消息</param>
-        /// <param name="len">派生长度</param>
+        /// <param name="ikm">原始密钥材料</param>
+        /// <param name="salt">加盐操作的盐，如果不提供则全部初始化为0的字符串，长度则为所采用哈希函数的散列值长度</param>
+        /// <param name="info">可选上下文和应用程序特定信息(可以是零长度字符串)</param>
+        /// <param name="len">输出长度，一般不长于哈希函数输出摘要长度的255倍。</param>
         /// <returns></returns>
         public byte[] HKDF(byte[] ikm, byte[] salt, byte[] info, int len)
         {
+            
             var prk = HKDFUtil.HKDF_Extract(ikm, salt);
             var okm = HKDFUtil.HKDF_Expand(prk, info, len);
             return okm;
