@@ -328,7 +328,7 @@ namespace github.hyfree.GM.Tests
             var gm = new GMService();
            
             //预处理1
-            var z = gm.Preprocessing1(HexUtil.HexToByteArray("BB34D657EE7E8490E66EF577E6B3CEA28B739511E787FB4F71B7F38F241D87F18A5A93DF74E90FF94F4EB907F271A36B295B851F971DA5418F4915E2C1A23D6E"));
+            var z = gm.Preprocessing1(HexUtil.HexToByteArray("BB34D657EE7E8490E66EF577E6B3CEA28B739511E787FB4F71B7F38F241D87F18A5A93DF74E90FF94F4EB907F271A36B295B851F971DA5418F4915E2C1A23D6E"),null);
             Console.WriteLine("预处理1=" + HexUtil.ByteArrayToHex(z));
             //预处理2
             var h = gm.Preprocessing2(z, m);
