@@ -254,10 +254,17 @@ namespace github.hyfree.GM.Tests
         {
             GMService gm = new GMService();
             var kp = gm.GenerateKeyPair();
-            Console.WriteLine(HexUtil.ByteArrayToHex(kp.PubKey));
-            Console.WriteLine(HexUtil.ByteArrayToHex(kp.PriKey));
+            Console.WriteLine("公钥="+HexUtil.ByteArrayToHex(kp.PubKey));
+            Console.WriteLine("私钥="+HexUtil.ByteArrayToHex(kp.PriKey));
 
+            var kp2 = gm.GenerateKeyPair(kp.PriKey);
+            Console.WriteLine("公钥=" + HexUtil.ByteArrayToHex(kp2.PubKey));
+            Console.WriteLine("私钥=" + HexUtil.ByteArrayToHex(kp2.PriKey));
+
+
+            CollectionAssert.AreEqual(kp.PubKey, kp2.PubKey);
         }
+   
 
         [TestMethod()]
         public void SM2SignTest()
@@ -283,8 +290,59 @@ namespace github.hyfree.GM.Tests
             var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
             Assert.IsFalse(verify2);
             Console.WriteLine("验签2通过");
+        }
+
+        [TestMethod()]
+        public void GMTSM2VerifySignTest()
+        {
+            //var m = new byte[]{  0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74};
+            var m =HexUtil.HexToByteArray("C522A942E89BD80D97DD666E7A5531B36188C9817149E9B258DFE51ECE98ED77");
+            var SM2Pubkey04= "04062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B";
+          
+            var gm = new GMService();
+           
+            var sign = "303DF98F82BBD29810740DF6B1DF4847F0A8AA60E1B82E5F6421A498BEA91681CEF22A9D29CBD89C0A88385B49504794053C027E0AF8E34D9006ACB87D115C3E";
+            //预处理1
+            var z=gm.Preprocessing1(HexUtil.HexToByteArray(SM2Pubkey04));
+            Console.WriteLine(  "预处理1="+HexUtil.ByteArrayToHex(z));
+            //预处理2
+            var h=gm.Preprocessing2(z,m);
+            Console.WriteLine("预处理2=" + HexUtil.ByteArrayToHex(h));
+
+            
+            var verify = gm.VerifySignWithE(m, HexUtil.HexToByteArray(sign), HexUtil.HexToByteArray(SM2Pubkey04));
+            Assert.IsTrue(verify);
+            Console.WriteLine("验签1通过");
+            
+            //var signFake = "044EF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
+            //var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
+            //Assert.IsFalse(verify2);
+            //Console.WriteLine("验签2通过");
+        }
+        [TestMethod()]
+        public void GMTSM2SignTest()
+        {
+            //var m = new byte[]{  0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74};
+            var m = HexUtil.HexToByteArray("C522A942E89BD80D97DD666E7A5531B36188C9817149E9B258DFE51ECE98ED77");
+         
+            var gm = new GMService();
+           
+            //预处理1
+            var z = gm.Preprocessing1(HexUtil.HexToByteArray("BB34D657EE7E8490E66EF577E6B3CEA28B739511E787FB4F71B7F38F241D87F18A5A93DF74E90FF94F4EB907F271A36B295B851F971DA5418F4915E2C1A23D6E"));
+            Console.WriteLine("预处理1=" + HexUtil.ByteArrayToHex(z));
+            //预处理2
+            var h = gm.Preprocessing2(z, m);
+            Console.WriteLine("预处理2=" + HexUtil.ByteArrayToHex(h));
 
 
+            var sign = gm.SM2Sign(HexUtil.ByteArrayToHex(h), priK);
+         
+            Console.WriteLine(sign);
+
+            //var signFake = "044EF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
+            //var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
+            //Assert.IsFalse(verify2);
+            //Console.WriteLine("验签2通过");
         }
     }
 }
