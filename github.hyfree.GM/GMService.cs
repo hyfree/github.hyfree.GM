@@ -109,15 +109,18 @@ namespace github.hyfree.GM
         /// 根据GMT009验证SM2签名值
         /// </summary>
         /// <param name="m">代签名原文 </param>
+        /// <param name="signData">签名数据</param>
         /// <param name="pubkey">公钥</param>
         /// <param name="userId">用户身份标识，如果是null，则采用SM2默认值</param>
         /// <returns></returns>
-        public bool GMT0009_VerifySign(byte[] m, byte[] pubkey, byte[] userId = null)
+        public bool GMT0009_VerifySign(byte[] m, byte[] signData, byte[] pubkey, byte[] userId)
         {
 
             var z = Preprocessing1(pubkey, userId);
+            var zHex=HexUtil.ByteArrayToHex(z);
             var h = Preprocessing2(z, m);
-            return VerifySignWithE(h, pubkey, userId);
+            var hex=HexUtil.ByteArrayToHex(h);
+            return VerifySignWithE(h,signData, pubkey, userId);
         }
 
 
@@ -128,9 +131,9 @@ namespace github.hyfree.GM
         /// <returns></returns>
         public byte[] Preprocessing1( byte[] Q,byte[] userId)
         {
-            if (Q.Length==66)
+            if (Q.Length==65)
             {
-                Q=Q.Skip(2).ToArray();
+                Q=Q.Skip(1).ToArray();
             }
 
             //   Z = SM3( ENTL || ID || a || b || x_G || y_G || x_A || y_A )

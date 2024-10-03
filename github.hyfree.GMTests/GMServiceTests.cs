@@ -293,21 +293,16 @@ namespace github.hyfree.GM.Tests
         }
 
         [TestMethod()]
-        public void GMTSM2VerifySignTest()
+        public void SM2VerifySignWithETest()
         {
             //var m = new byte[]{  0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74};
-            var m =HexUtil.HexToByteArray("C522A942E89BD80D97DD666E7A5531B36188C9817149E9B258DFE51ECE98ED77");
+            var m =HexUtil.HexToByteArray("DE9D25D6ACF1474B2EE17A4FD79F0B6809614C0703D74BA762FAE8C98ABF313F");
             var SM2Pubkey04= "04062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B";
           
             var gm = new GMService();
            
-            var sign = "303DF98F82BBD29810740DF6B1DF4847F0A8AA60E1B82E5F6421A498BEA91681CEF22A9D29CBD89C0A88385B49504794053C027E0AF8E34D9006ACB87D115C3E";
-            //预处理1
-            var z=gm.Preprocessing1(HexUtil.HexToByteArray(SM2Pubkey04));
-            Console.WriteLine(  "预处理1="+HexUtil.ByteArrayToHex(z));
-            //预处理2
-            var h=gm.Preprocessing2(z,m);
-            Console.WriteLine("预处理2=" + HexUtil.ByteArrayToHex(h));
+            var sign = "BA1AEE1D93FD1C972DB8E39C90AFD274C1212E3AE2A0C00739C536E0EDDDA3481F98DC14D6519142D948670EA4D63C39C3AA5B4C80660B4FE979DFF8488A5CFE";
+           
 
             
             var verify = gm.VerifySignWithE(m, HexUtil.HexToByteArray(sign), HexUtil.HexToByteArray(SM2Pubkey04));
@@ -320,24 +315,42 @@ namespace github.hyfree.GM.Tests
             //Console.WriteLine("验签2通过");
         }
         [TestMethod()]
+        public void GMT0009SM2Test()
+        {
+            //var m = new byte[]{  0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74};
+            var m = HexUtil.HexToByteArray("01020304050607080102030405060708");
+            var gm = new GMService();
+            var key=gm.GenerateKeyPair();
+            var sign= gm.GMT0009_SM2Sign(m,key.PriKey,null);
+            var verify=gm.GMT0009_VerifySign(m,sign,key.PubKey,null);
+            Assert.IsTrue(verify);
+        }
+
+
+        [TestMethod()]
         public void GMTSM2SignTest()
         {
             //var m = new byte[]{  0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74};
-            var m = HexUtil.HexToByteArray("C522A942E89BD80D97DD666E7A5531B36188C9817149E9B258DFE51ECE98ED77");
-         
+            var m = HexUtil.HexToByteArray("01020304050607080102030405060708");
+            var pubkey= "04062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B";
             var gm = new GMService();
            
             //预处理1
-            var z = gm.Preprocessing1(HexUtil.HexToByteArray("BB34D657EE7E8490E66EF577E6B3CEA28B739511E787FB4F71B7F38F241D87F18A5A93DF74E90FF94F4EB907F271A36B295B851F971DA5418F4915E2C1A23D6E"),null);
+            var z = gm.Preprocessing1(HexUtil.HexToByteArray("062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B"),null);
             Console.WriteLine("预处理1=" + HexUtil.ByteArrayToHex(z));
             //预处理2
             var h = gm.Preprocessing2(z, m);
             Console.WriteLine("预处理2=" + HexUtil.ByteArrayToHex(h));
 
+            var signData=HexUtil.HexToByteArray("1B9FCB8ABCAEA54043A2E8F853D89EF301A965CFEFDC19C3338ADB0793E57F83EA9662755CAC7CA2420D88411368EE898BAF2C58B0518CA6764BACD0760A59B4");
 
-            var sign = gm.SM2Sign(HexUtil.ByteArrayToHex(h), priK);
+            var verify = gm.VerifySignWithE(h, signData, HexUtil.HexToByteArray(pubkey),null);
+
          
-            Console.WriteLine(sign);
+            Assert.IsTrue(verify);
+
+            verify=gm.GMT0009_VerifySign(m,signData,HexUtil.HexToByteArray(pubkey),null);
+            Assert.IsTrue(verify);
 
             //var signFake = "044EF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
             //var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
