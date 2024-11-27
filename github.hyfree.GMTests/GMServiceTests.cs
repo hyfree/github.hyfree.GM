@@ -3,6 +3,7 @@ using github.hyfree.GM.HDKF;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using System.Buffers.Text;
 using System.Diagnostics;
 using System.Text;
 
@@ -176,6 +177,24 @@ namespace github.hyfree.GM.Tests
             Console.WriteLine(sm3);
             Assert.AreEqual(sm3.ToUpper(), expect);
         }
+
+        [TestMethod()]
+        public void SM3SM2Test()
+        {
+            var dataByte= File.ReadAllBytes("C:\\Users\\huany\\Desktop\\1.mp4");
+            
+            //var data = "3030303030303030303030303030303030303030303030303030303030303030";
+            //var expect = "557D7424ACA47640B500A525D2B53C4B2E59E552704722291AAC4D52695546AA";
+            var gm = new GMService();
+            var sm3 = gm.SM3(dataByte);
+            var pubk = HexUtil.HexToByteArray("04d2aec7e58bcfcd7e31fe5dad98922d5c0369af4ba617d8369c4d0c8e26cb8c1adb30c406e09a4201711d37ebea443e15f922edc40ff89143223eda1522310d18");
+            var sign = HexUtil.HexToByteArray("d8e7eb8fd7141afba590fadf1683a8d09e6d4d8c27f06ee781e15c7179de4b7d27c4df1e428f3817c7b5ba79e3a2d5cc118d18785698309274655a83f6545cd7");
+            Console.WriteLine("输入视频流文件");
+            Console.WriteLine("消息SM3："+HexUtil.ByteArrayToHex(sm3));
+            var verify= gm.SM2VerifySign(sm3, sign, pubk);
+            Console.WriteLine("SM2签名验证："+verify);
+            //Assert.AreEqual(sm3.ToUpper(), expect);
+        }
         [TestMethod()]
         public void SM3_1M_Test()
         {
@@ -249,6 +268,30 @@ namespace github.hyfree.GM.Tests
             Assert.AreEqual(test4.ToLower(), "d374f8adb0e9d1f12de94c1406fe8b2d53f84129e033f0d269400de8e8e7ca1a");
         }
 
+        [TestMethod()]
+        public void HmacTest2()
+        {
+           
+            var gm = new GMService();
+            //32字节输入
+            var test1 = gm.Hmac("01020304050607080102030405060708", "01020304050607080102030405060708");
+            Console.WriteLine( test1);
+            Assert.AreEqual(test1.ToLower(), "81235142d8b53b66ccce30256418e14286d9ebc58143ca00565b5aeacc9395df");
+
+           
+        }
+        [TestMethod()]
+        public void HmacTest3()
+        {
+
+            var gm = new GMService();
+            //32字节输入
+            var test1 = gm.Hmac("b4ab70c69fed2e090001", "368c1adba8b9d783");
+            Console.WriteLine(test1);
+            Assert.AreEqual(test1.ToLower(), "c9212fea556eaac8d319756efe4203c3936134c2d281c67f48ee349ae3ea3d5c");
+
+
+        }
         [TestMethod()]
         public void GenerateKeyPairTest()
         {

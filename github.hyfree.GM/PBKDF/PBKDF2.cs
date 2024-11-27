@@ -70,6 +70,9 @@ namespace github.hyfree.GM.PBKDF
             byte[] iArray = intToBytes(i);
             byte[] hash = Hmac(p, s.Concat(iArray).ToArray());
 
+            var phex = HexUtil.ByteArrayToHex(p);
+            var shex = HexUtil.ByteArrayToHex(s);
+            var con = HexUtil.ByteArrayToHex(s.Concat(iArray).ToArray());
             var hex = HexUtil.ByteArrayToHex(hash);
             return hash;
         }
