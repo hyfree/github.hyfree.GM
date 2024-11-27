@@ -39,6 +39,10 @@ namespace github.hyfree.GM
         {
            return  SM2Utils.GenerateKeyPair();
         }
+        public SM2KeyPair GenerateKeyPair(byte[] priKey)
+        {
+            return SM2Utils.GenerateKeyPair(priKey);
+        }
         public string SM2Sign(string msg, string priKey)
         {
 
@@ -50,6 +54,35 @@ namespace github.hyfree.GM
             var sign = SM2Utils.Sign(msg, PriKey, userId);
             return sign.ToByteArray();
         }
+        /// <summary>
+        /// 使用输入的e签名
+        /// </summary>
+        /// <param name="e">e</param>
+        /// <param name="PriKey">私钥</param>
+        /// <param name="userId">userId</param>
+        /// <returns></returns>
+        public byte[] SM2SignWithE(byte[] e, byte[] PriKey, byte[] userId = null)
+        {
+            var sign = SM2Utils.SignWithE(e, PriKey, userId);
+            return sign.ToByteArray();
+        }
+        /// <summary>
+        /// 根据GMT009计算SM2签名值
+        /// </summary>
+        /// <param name="m">代签名原文 </param>
+        /// <param name="priKey">私钥</param>
+        /// <param name="userId">用户身份标识，如果是null，则采用SM2默认值</param>
+        /// <returns></returns>
+        public byte[] GMT0009_SM2Sign(byte[] m, byte[] priKey, byte[] userId = null)
+        {
+            var keyPair=GenerateKeyPair(priKey);
+
+            var z=Preprocessing1(keyPair.PubKey, userId);
+            var h=Preprocessing2(z,m);
+            return SM2SignWithE(h,priKey,userId);
+        }
+
+
         public bool SM2VerifySign(byte[] msg, byte[] signData, byte[] pubKey, byte[] userId = null)
         {
             var signature=new SM2Signature(signData);
@@ -66,6 +99,83 @@ namespace github.hyfree.GM
             var verify = SM2Utils.VerifySign(HexUtil.HexToByteArray(msg), signature, HexUtil.HexToByteArray(pubKey), userIdBuffer);
             return verify;
         }
+        public bool VerifySignWithE(byte[] e, byte[] signData, byte[] pubKey, byte[] userId = null)
+        {
+            var signature = new SM2Signature(signData);
+            var verify = SM2Utils.VerifySignWithE(e, signature, pubKey, userId);
+            return verify;
+        }
+        /// <summary>
+        /// 根据GMT009验证SM2签名值
+        /// </summary>
+        /// <param name="m">代签名原文 </param>
+        /// <param name="signData">签名数据</param>
+        /// <param name="pubkey">公钥</param>
+        /// <param name="userId">用户身份标识，如果是null，则采用SM2默认值</param>
+        /// <returns></returns>
+        public bool GMT0009_VerifySign(byte[] m, byte[] signData, byte[] pubkey, byte[] userId)
+        {
+
+            var z = Preprocessing1(pubkey, userId);
+            var zHex=HexUtil.ByteArrayToHex(z);
+            var h = Preprocessing2(z, m);
+            var hex=HexUtil.ByteArrayToHex(h);
+            return VerifySignWithE(h,signData, pubkey, userId);
+        }
+
+
+        /// <summary>
+        /// 预处理1
+        /// </summary>
+        /// <param name="Q">用户的公钥没有0x04的部分;</param>
+        /// <returns></returns>
+        public byte[] Preprocessing1( byte[] Q,byte[] userId)
+        {
+            if (Q.Length==65)
+            {
+                Q=Q.Skip(1).ToArray();
+            }
+
+            //   Z = SM3( ENTL || ID || a || b || x_G || y_G || x_A || y_A )
+            if (userId==null)
+            {
+                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
+            }
+         
+
+            List<byte> inData = new List<byte>();
+            //inData.AddRange(HexUtil.HexToByteArray("0080"));//ID比特长度
+            var len=(ushort)(userId.Length*8);
+            var ENTL = BitConverter.GetBytes(len);
+            Array.Reverse(ENTL);
+            inData.AddRange(ENTL);//ID比特长度
+            inData.AddRange(userId);
+            inData.AddRange(HexUtil.HexToByteArray("FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000FFFFFFFFFFFFFFFC"));//a
+            inData.AddRange(HexUtil.HexToByteArray("28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93"));//b
+            inData.AddRange(HexUtil.HexToByteArray("32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7"));//c
+            inData.AddRange(HexUtil.HexToByteArray("BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0"));//d
+        
+            inData.AddRange(Q);//pubk,没有0x04的部分;
+            var hash=SM3(inData.ToArray());
+            return hash;
+
+        }
+        /// <summary>
+        /// 预处理2
+        /// </summary>
+        /// <param name="Z">预处理1的输出</param>
+        /// <param name="M">待签名消息</param>
+        /// <returns></returns>
+        public byte[] Preprocessing2(byte[] Z, byte[] M)
+        {
+            //    H = SM3( Z || M ）
+            var inData=new List<byte>();
+            inData.AddRange(Z);
+            inData.AddRange(M);
+            var hash=SM3(inData.ToArray()); 
+            return hash;    
+        }
+
 
 
         public string SM2Encrypt(string dataHex, string keyHex)

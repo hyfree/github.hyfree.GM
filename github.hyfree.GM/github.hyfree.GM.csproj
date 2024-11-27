@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
    
-    <Version>0.0.9</Version>
+    <Version>0.0.12</Version>
     <Authors>hyfree</Authors>
     <Description>国密SM2、SM3、SM4算法</Description>
     <PackageProjectUrl>https://github.com/hyfree/github.hyfree.GM</PackageProjectUrl>

@@ -1,10 +1,14 @@
-﻿using Org.BouncyCastle.Asn1.X9;
+﻿using github.hyfree.GM.Common;
+using github.hyfree.GM.SM3;
+
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
+using Org.BouncyCastle.Math.EC.Multiplier;
 using Org.BouncyCastle.Utilities.Encoders;
 
 using System;
@@ -13,6 +17,8 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+
+using static Org.BouncyCastle.Crypto.Digests.SkeinEngine;
 
 namespace github.hyfree.GM.SM2
 {
@@ -46,6 +52,25 @@ namespace github.hyfree.GM.SM2
             return kp;
         }
 
+        public static SM2KeyPair GenerateKeyPair(byte[] privateKey)
+        {
+            BigInteger d = new BigInteger(1, privateKey);
+            SM2Factory sm2Parameters = SM2Factory.Instance;
+            ECPoint q = new FixedPointCombMultiplier().Multiply(sm2Parameters.ecc_point_g, d);
+            AsymmetricCipherKeyPair key= new AsymmetricCipherKeyPair(
+             new ECPublicKeyParameters("EC", q, sm2Parameters.ecc_bc_spec),
+             new ECPrivateKeyParameters("EC", d, sm2Parameters.ecc_bc_spec));
+            ECPrivateKeyParameters ecpriv = (ECPrivateKeyParameters)key.Private;
+            ECPublicKeyParameters ecpub = (ECPublicKeyParameters)key.Public;
+            //BigInteger privateKey = ecpriv.D;
+            ECPoint publicKey = ecpub.Q;
+
+            SM2KeyPair kp = new SM2KeyPair();
+            kp.PubKey = publicKey.GetEncoded();
+            kp.PriKey = privateKey;
+            return kp;
+        }
+
         public static SM2Signature Sign(byte[] msg, byte[] privateKey, byte[] userId = null)
         {
             if (userId == null)
@@ -70,6 +95,34 @@ namespace github.hyfree.GM.SM2
            return result;
 
         }
+       
+
+        /// <summary>
+        /// 通过输入的E计算签名
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="privateKey"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public static SM2Signature SignWithE(byte[] e, byte[] privateKey, byte[] userId = null)
+        {
+            if (userId == null)
+            {
+                //31323334353637383132333435363738
+                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
+            }
+            BigInteger userD = new BigInteger(1, privateKey);
+            SM2Factory sm2Factory = SM2Factory.Instance;
+
+            ECPoint userKey = sm2Factory.ecc_point_g.Multiply(userD);
+
+            var result = sm2Factory.Sm2Sign(e, userD, userKey);
+
+
+            return result;
+
+        }
+
 
         public static bool VerifySign(byte[] msg, SM2Signature sm2Signature, byte[] pubKey, byte[] userId = null)
         {
@@ -100,6 +153,39 @@ namespace github.hyfree.GM.SM2
             return verifyFlag;
 
         }
+        /// <summary>
+        /// 通过输入的e计算验签
+        /// </summary>
+        /// <param name="e">E</param>
+        /// <param name="sm2Signature"></param>
+        /// <param name="pubKey"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public static bool VerifySignWithE(byte[] e, SM2Signature sm2Signature, byte[] pubKey, byte[] userId = null)
+        {
+
+            if (userId == null)
+            {
+                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
+            }
+            SM2Factory factory = SM2Factory.Instance;
+            ECPoint userKey = factory.ecc_curve.DecodePoint(pubKey);
+          
+
+            var r = new BigInteger(1, sm2Signature.R);
+            var s = new BigInteger(1, sm2Signature.S);
+            var sm2Result = new SM2Result();
+            sm2Result = factory.Sm2Verify(e, userKey, r, s);
+            if (sm2Result.R == null)
+            {
+                return false;
+            }
+            var verifyFlag = sm2Result.R.Equals(r);
+
+            return verifyFlag;
+
+        }
+
 
         public static string Encrypt(byte[] publicKey, byte[] data)
         {
