@@ -13,8 +13,31 @@ namespace github.hyfree.GM.SM4
         public byte[] iv ;
         //public bool hexString = true;//默认使用Hex
 
+        private void ValidateKey()
+        {
+            if (secretKey == null || secretKey.Length != 16)
+            {
+                throw new ArgumentException("SM4 key must be exactly 16 bytes", nameof(secretKey));
+            }
+        }
+
+        private void ValidateIv()
+        {
+            if (iv == null || iv.Length != 16)
+            {
+                throw new ArgumentException("SM4 IV must be exactly 16 bytes", nameof(iv));
+            }
+        }
+
         public string Encrypt_ECB(byte[] plainText)
         {
+            if (plainText == null)
+            {
+                throw new ArgumentNullException(nameof(plainText));
+            }
+
+            ValidateKey();
+
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
             ctx.mode = SM4.SM4_ENCRYPT;
@@ -26,19 +49,27 @@ namespace github.hyfree.GM.SM4
             sm4.sm4_setkey_enc(ctx, keyBytes);
             byte[] encrypted = sm4.sm4_crypt_ecb(ctx, plainText);
 
-            string cipherText = Encoding.Default.GetString(encrypted);
+            string cipherText = HexUtil.ByteArrayToHex(encrypted);
             return cipherText;
         }
 
 
         public byte[] Encrypt_CBC(byte[] plainText)
         {
+            if (plainText == null)
+            {
+                throw new ArgumentNullException(nameof(plainText));
+            }
+
+            ValidateKey();
+            ValidateIv();
+
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
             ctx.mode = SM4.SM4_ENCRYPT;
 
             byte[] keyBytes = secretKey;
-            byte[] ivBytes=iv;
+            byte[] ivBytes = (byte[])iv.Clone();
            
 
             SM4 sm4 = new SM4();
@@ -52,12 +83,20 @@ namespace github.hyfree.GM.SM4
 
         public byte[] Decrypt_CBC(byte[] cipherText)
         {
+            if (cipherText == null)
+            {
+                throw new ArgumentNullException(nameof(cipherText));
+            }
+
+            ValidateKey();
+            ValidateIv();
+
             SM4_Context ctx = new SM4_Context();
             ctx.isPadding = true;
             ctx.mode = SM4.SM4_DECRYPT;
 
             byte[] keyBytes = secretKey;
-            byte[] ivBytes = iv;
+            byte[] ivBytes = (byte[])iv.Clone();
            
 
             SM4 sm4 = new SM4();

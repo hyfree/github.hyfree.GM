@@ -27,8 +27,6 @@ namespace github.hyfree.GM.PBKDF
                 int block = dkLen / hLen;
                 r = dkLen % hLen;
 
-                var output = new byte[dkLen];
-
                 var dk = new List<byte>(dkLen);
 
                 for (int i = 1; i < block + 1; i++)
@@ -43,7 +41,6 @@ namespace github.hyfree.GM.PBKDF
                 return dk.ToArray();
 
             }
-            return null;
         }
 
         public byte[] F(byte[] p, byte[] s, int c, int i)
@@ -69,19 +66,12 @@ namespace github.hyfree.GM.PBKDF
         {
             byte[] iArray = intToBytes(i);
             byte[] hash = Hmac(p, s.Concat(iArray).ToArray());
-
-            var phex = HexUtil.ByteArrayToHex(p);
-            var shex = HexUtil.ByteArrayToHex(s);
-            var con = HexUtil.ByteArrayToHex(s.Concat(iArray).ToArray());
-            var hex = HexUtil.ByteArrayToHex(hash);
             return hash;
         }
         public byte[] PRF(byte[] p, byte[] s)
         {
 
             byte[] hash = Hmac(p, s);
-
-            var hex = HexUtil.ByteArrayToHex(hash);
             return hash;
         }
         public byte[] Hmac(byte[] key, byte[] data)
@@ -96,7 +86,7 @@ namespace github.hyfree.GM.PBKDF
         {
             if (a.Length != b.Length)
             {
-                throw new Exception();
+                throw new ArgumentException("Input arrays must have the same length.");
             }
             var c = new byte[a.Length];
             for (int i = 0; i < a.Length; i++)

@@ -34,14 +34,28 @@ namespace github.hyfree.GM.HDKF
         /// <returns>OKM，输出，长度为L的密钥材料输出</returns>
         public static byte[] HKDF_Expand(byte[] prk, byte[] info,int L)
         {
-            var t=new byte[0];
-            var okm=new byte[0];
+            if (prk == null || prk.Length == 0)
+            {
+                throw new ArgumentException("prk cannot be null or empty", nameof(prk));
+            }
+
+            if (L < 0 || L > 255 * HLen)
+            {
+                throw new ArgumentOutOfRangeException(nameof(L), $"L must be in range [0, {255 * HLen}]");
+            }
+
+            info ??= Array.Empty<byte>();
+
+            var t = Array.Empty<byte>();
+            var okm = Array.Empty<byte>();
             SM3Util sM3Util = new SM3Util();
-            var N=Math.Ceiling((float)L/HLen);
+            var N = Math.Ceiling((float)L / HLen);
             for (int i = 0; i < N; i++)
             {
-                t=sM3Util.Hmac(prk, t.Concat(info).Concat(new byte[] {(byte)(i+1)}).ToArray());
-                okm=okm.Concat(t).ToArray();
+                var data = t.Concat(info).Concat(new byte[] { (byte)(i + 1) }).ToArray();
+                // SM3Util.Hmac signature is Hmac(input, key), so key must be PRK.
+                t = sM3Util.Hmac(data, prk);
+                okm = okm.Concat(t).ToArray();
             }
             return okm.Take(L).ToArray();
 

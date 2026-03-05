@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using github.hyfree.GM.Common;
@@ -197,7 +198,26 @@ namespace github.hyfree.GM.SM4
             }
             else
             {
+                if (input.Length == 0 || input.Length % 16 != 0)
+                {
+                    throw new CryptographicException("Invalid SM4 CBC ciphertext length.");
+                }
+
                 int p = input[input.Length - 1];
+
+                if (p < 1 || p > 16 || p > input.Length)
+                {
+                    throw new CryptographicException("Invalid SM4 padding length.");
+                }
+
+                for (int i = 1; i <= p; i++)
+                {
+                    if (input[input.Length - i] != p)
+                    {
+                        throw new CryptographicException("Invalid SM4 PKCS#7 padding bytes.");
+                    }
+                }
+
                 ret = new byte[input.Length - p];
                 Array.Copy(input, 0, ret, 0, input.Length - p);
             }
@@ -206,12 +226,30 @@ namespace github.hyfree.GM.SM4
 
         public void sm4_setkey_enc(SM4_Context ctx, byte[] key)
         {
+            if (ctx == null)
+            {
+                throw new ArgumentNullException(nameof(ctx));
+            }
+            if (key == null || key.Length != 16)
+            {
+                throw new ArgumentException("SM4 key must be exactly 16 bytes", nameof(key));
+            }
+
             ctx.mode = SM4_ENCRYPT;
             sm4_setkey(ctx.sk, key);
         }
 
         public void sm4_setkey_dec(SM4_Context ctx, byte[] key)
         {
+            if (ctx == null)
+            {
+                throw new ArgumentNullException(nameof(ctx));
+            }
+            if (key == null || key.Length != 16)
+            {
+                throw new ArgumentException("SM4 key must be exactly 16 bytes", nameof(key));
+            }
+
             int i = 0;
             ctx.mode = SM4_DECRYPT;
             sm4_setkey(ctx.sk, key);
@@ -223,9 +261,22 @@ namespace github.hyfree.GM.SM4
 
         public byte[] sm4_crypt_ecb(SM4_Context ctx, byte[] input)
         {
+            if (ctx == null)
+            {
+                throw new ArgumentNullException(nameof(ctx));
+            }
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
             if (ctx.isPadding && ctx.mode == SM4_ENCRYPT)
             {
                 input = padding(input, SM4_ENCRYPT);
+            }
+            else if (!ctx.isPadding && input.Length % 16 != 0)
+            {
+                throw new ArgumentException("Input length must be a multiple of 16 bytes when padding is disabled.", nameof(input));
             }
 
             int length = input.Length;
@@ -252,11 +303,28 @@ namespace github.hyfree.GM.SM4
 
         public byte[] sm4_crypt_cbc(SM4_Context ctx, byte[] iv, byte[] input)
         {
+            if (ctx == null)
+            {
+                throw new ArgumentNullException(nameof(ctx));
+            }
+            if (iv == null || iv.Length != 16)
+            {
+                throw new ArgumentException("SM4 IV must be exactly 16 bytes", nameof(iv));
+            }
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+
             if (ctx.isPadding && ctx.mode == SM4_ENCRYPT)
             {
                 input = padding(input, SM4_ENCRYPT);
             }
-            var hex = HexUtil.ByteArrayToHex(input);
+            else if (!ctx.isPadding && input.Length % 16 != 0)
+            {
+                throw new ArgumentException("Input length must be a multiple of 16 bytes when padding is disabled.", nameof(input));
+            }
+
             int i = 0;
             int length = input.Length;
             byte[] bins = new byte[length];
