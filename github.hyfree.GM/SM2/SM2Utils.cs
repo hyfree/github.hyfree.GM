@@ -1,29 +1,32 @@
 ﻿using github.hyfree.GM.Common;
 using github.hyfree.GM.SM3;
 
-using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
+using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
 using Org.BouncyCastle.Math.EC.Multiplier;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.Encoders;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-
-using static Org.BouncyCastle.Crypto.Digests.SkeinEngine;
 
 namespace github.hyfree.GM.SM2
 {
     public class SM2Utils
     {
+        private static readonly byte[] DefaultUserId = new byte[]
+        {
+            0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+            0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
+        };
+
         public static void GenerateKeyPairHex(out string pubKey, out string priKey)
         {
             SM2Factory sm2 = SM2Factory.Instance;
@@ -73,11 +76,7 @@ namespace github.hyfree.GM.SM2
 
         public static SM2Signature Sign(byte[] msg, byte[] privateKey, byte[] userId = null)
         {
-            if (userId == null)
-            {
-                //31323334353637383132333435363738
-                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
-            }
+            userId ??= DefaultUserId;
             BigInteger userD = new BigInteger(1, privateKey);
             SM2Factory sm2Factory = SM2Factory.Instance;
 
@@ -88,11 +87,8 @@ namespace github.hyfree.GM.SM2
             sm3Digest.BlockUpdate(msg, 0, msg.Length);
             var md = new byte[32];
             sm3Digest.DoFinal(md, 0);
-          
-            var result= sm2Factory.Sm2Sign(md,userD,userKey);
 
-
-           return result;
+                return SignWithE(md, privateKey, userId);
 
         }
        
@@ -106,31 +102,19 @@ namespace github.hyfree.GM.SM2
         /// <returns></returns>
         public static SM2Signature SignWithE(byte[] e, byte[] privateKey, byte[] userId = null)
         {
-            if (userId == null)
-            {
-                //31323334353637383132333435363738
-                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
-            }
+            userId ??= DefaultUserId;
             BigInteger userD = new BigInteger(1, privateKey);
             SM2Factory sm2Factory = SM2Factory.Instance;
-
             ECPoint userKey = sm2Factory.ecc_point_g.Multiply(userD);
 
-            var result = sm2Factory.Sm2Sign(e, userD, userKey);
-
-
-            return result;
+            return sm2Factory.Sm2Sign(e, userD, userKey);
 
         }
 
 
         public static bool VerifySign(byte[] msg, SM2Signature sm2Signature, byte[] pubKey, byte[] userId = null)
         {
-            
-            if (userId == null)
-            {
-                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
-            }
+            userId ??= DefaultUserId;
             SM2Factory factory = SM2Factory.Instance;
             ECPoint userKey = factory.ecc_curve.DecodePoint(pubKey);
             SM3Digest sm3Digest = new SM3Digest();
@@ -140,17 +124,7 @@ namespace github.hyfree.GM.SM2
             byte[] md = new byte[32];
             sm3Digest.DoFinal(md, 0);
 
-            var r=new BigInteger(1,sm2Signature.R);
-            var s=new BigInteger(1,sm2Signature.S);
-            var sm2Result=new SM2Result();
-            sm2Result= factory.Sm2Verify(md,userKey, r,s);
-            if (sm2Result.R==null)
-            {
-                return false;
-            }
-            var verifyFlag = sm2Result.R.Equals(r);
-
-            return verifyFlag;
+            return VerifySignWithE(md, sm2Signature, pubKey, userId);
 
         }
         /// <summary>
@@ -163,26 +137,19 @@ namespace github.hyfree.GM.SM2
         /// <returns></returns>
         public static bool VerifySignWithE(byte[] e, SM2Signature sm2Signature, byte[] pubKey, byte[] userId = null)
         {
-
-            if (userId == null)
-            {
-                userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
-            }
+            userId ??= DefaultUserId;
             SM2Factory factory = SM2Factory.Instance;
             ECPoint userKey = factory.ecc_curve.DecodePoint(pubKey);
-          
 
             var r = new BigInteger(1, sm2Signature.R);
             var s = new BigInteger(1, sm2Signature.S);
-            var sm2Result = new SM2Result();
-            sm2Result = factory.Sm2Verify(e, userKey, r, s);
+            var sm2Result = factory.Sm2Verify(e, userKey, r, s);
             if (sm2Result.R == null)
             {
                 return false;
             }
-            var verifyFlag = sm2Result.R.Equals(r);
 
-            return verifyFlag;
+            return sm2Result.R.Equals(r);
 
         }
 
@@ -230,27 +197,15 @@ namespace github.hyfree.GM.SM2
                 return null;
             }
 
-            byte[] source = new byte[data.Length];
-            Array.Copy(data, 0, source, 0, data.Length);
-
-            Cipher cipher = new Cipher();
             SM2Factory sm2Parameters = SM2Factory.Instance;
 
             ECPoint userKey = sm2Parameters.ecc_curve.DecodePoint(publicKey);
-
-            ECPoint c1 = cipher.Init_enc(sm2Parameters, userKey);
-            cipher.Encrypt(source);
-
-            byte[] c3 = new byte[32];
-            cipher.Dofinal(c3);
-
-            //String sc1 = Encoding.Default.GetString(Hex.Encode(c1.GetEncoded()));
-            //String sc2 = Encoding.Default.GetString(Hex.Encode(source));
-            //String sc3 = Encoding.Default.GetString(Hex.Encode(c3));
-
-            return c1.GetEncoded()
-                 .Concat(c3)
-                .Concat(source).ToArray();
+                var publicKeyParams = new ECPublicKeyParameters("EC", userKey, sm2Parameters.ecc_bc_spec);
+                var engine = new SM2Engine();
+                var parameters = new ParametersWithRandom(publicKeyParams, new SecureRandom());
+                engine.Init(true, parameters);
+                byte[] c1c2c3 = engine.ProcessBlock(data, 0, data.Length);
+                return ConvertC1C2C3ToC1C3C2(c1c2c3, data.Length);
         }
 
         public static byte[] Decrypt(byte[] privateKey, byte[] encryptedData)
@@ -300,21 +255,31 @@ namespace github.hyfree.GM.SM2
                 return null;
             }
 
-            byte[] c1Bytes = encryptedData.Take(65).ToArray();
-            byte[] c3 = encryptedData.Skip(65).Take(32).ToArray();
-            byte[] c2 = encryptedData.Skip(97).ToArray();
-
             SM2Factory sm2 = SM2Factory.Instance;
             BigInteger userD = new BigInteger(1, privateKey);
-
-            ECPoint c1 = sm2.ecc_curve.DecodePoint(c1Bytes);
-            Cipher cipher = new Cipher();
-            cipher.Init_dec(userD, c1);
-            cipher.Decrypt(c2);
-            cipher.Dofinal(c3);
-
-            return c2;
+            var privateKeyParams = new ECPrivateKeyParameters("EC", userD, sm2.ecc_bc_spec);
+            var engine = new SM2Engine();
+            engine.Init(false, privateKeyParams);
+            byte[] c1c2c3 = ConvertC1C3C2ToC1C2C3(encryptedData);
+            return engine.ProcessBlock(c1c2c3, 0, c1c2c3.Length);
         }
+
+        private static byte[] ConvertC1C2C3ToC1C3C2(byte[] c1c2c3, int plainLength)
+        {
+            var c1 = c1c2c3.Take(65);
+            var c2 = c1c2c3.Skip(65).Take(plainLength);
+            var c3 = c1c2c3.Skip(65 + plainLength).Take(32);
+            return c1.Concat(c3).Concat(c2).ToArray();
+        }
+
+        private static byte[] ConvertC1C3C2ToC1C2C3(byte[] c1c3c2)
+        {
+            var c1 = c1c3c2.Take(65);
+            var c3 = c1c3c2.Skip(65).Take(32);
+            var c2 = c1c3c2.Skip(97);
+            return c1.Concat(c2).Concat(c3).ToArray();
+        }
+
 
         //[STAThread]
         //public static void Main()

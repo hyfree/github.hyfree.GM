@@ -1,4 +1,6 @@
 ﻿using github.hyfree.GM.Common;
+using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Digests;
 
 using System;
@@ -42,49 +44,23 @@ namespace github.hyfree.GM.SM3
 
         public byte[] Hmac(byte[] input, byte[] sm3_key)
         {
-            var BLOCK_LENGTH = 64;
-            var structured_key = new byte[BLOCK_LENGTH];
-
-            var IPAD = new byte[BLOCK_LENGTH];
-            var OPAD = new byte[BLOCK_LENGTH];
-
-
-
-            //1 密钥填充
-            if (sm3_key.Length > BLOCK_LENGTH)
+            if (input == null)
             {
-                sm3_key = Hash(sm3_key);
-                for (var i = 0; i < sm3_key.Length; i++)
-                {
-                    structured_key[i] = sm3_key[i];
-                }
+                throw new ArgumentNullException(nameof(input));
             }
-            else
-            {
-                for (var i = 0; i < sm3_key.Length; i++)
-                {
-                    structured_key[i] = sm3_key[i];
-                }
-            }
-            //2 与ipad异或运算
-            for (var i = 0; i < BLOCK_LENGTH; i++)
-            {
-                IPAD[i] = 0x36;
-                OPAD[i] = 0x5c;
-            }
-            var ipadkey = HexUtil.XOR(structured_key, IPAD);
-            //3  拼接组合
-            var ipadkey_message = ipadkey.Concat(input).ToArray();
-            //4  计算散列值
-            var hash1 = Hash(ipadkey_message);
 
-            //5 与opad异或运算
-            var opadkey = HexUtil.XOR(structured_key, OPAD);
-            //6 hash1结合
-            var opadkey_hash1 = opadkey.Concat(hash1).ToArray();
-            //7 计算散列值
-            var hash2 = Hash(opadkey_hash1);
-            return hash2;
+            if (sm3_key == null)
+            {
+                throw new ArgumentNullException(nameof(sm3_key));
+            }
+
+            var hmac = new HMac(new SM3Digest());
+            hmac.Init(new KeyParameter(sm3_key));
+            hmac.BlockUpdate(input, 0, input.Length);
+
+            var output = new byte[hmac.GetMacSize()];
+            hmac.DoFinal(output, 0);
+            return output;
 
         }
 

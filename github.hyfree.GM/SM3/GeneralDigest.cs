@@ -81,6 +81,14 @@ namespace github.hyfree.GM.SM3
             }
         }
 
+        public void BlockUpdate(ReadOnlySpan<byte> input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                Update(input[i]);
+            }
+        }
+
         public void Finish()
         {
             long bitLength = byteCount << 3;
@@ -113,6 +121,19 @@ namespace github.hyfree.GM.SM3
         public abstract string AlgorithmName { get; }
         public abstract int GetDigestSize();
         public abstract int DoFinal(byte[] output, int outOff);
+
+        public int DoFinal(Span<byte> output)
+        {
+            if (output.Length < GetDigestSize())
+            {
+                throw new ArgumentException("Output span is too small.", nameof(output));
+            }
+
+            byte[] tmp = new byte[GetDigestSize()];
+            int len = DoFinal(tmp, 0);
+            tmp.AsSpan(0, len).CopyTo(output);
+            return len;
+        }
     }
 
     public class SupportClass

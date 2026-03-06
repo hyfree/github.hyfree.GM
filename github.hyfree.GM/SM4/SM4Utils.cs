@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using github.hyfree.GM.Common;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Paddings;
+using Org.BouncyCastle.Crypto.Parameters;
 
 namespace github.hyfree.GM.SM4
 {
@@ -38,16 +44,9 @@ namespace github.hyfree.GM.SM4
 
             ValidateKey();
 
-            SM4_Context ctx = new SM4_Context();
-            ctx.isPadding = true;
-            ctx.mode = SM4.SM4_ENCRYPT;
-
-            byte[] keyBytes= secretKey;
-          
-
-            SM4 sm4 = new SM4();
-            sm4.sm4_setkey_enc(ctx, keyBytes);
-            byte[] encrypted = sm4.sm4_crypt_ecb(ctx, plainText);
+            IBufferedCipher cipher = new PaddedBufferedBlockCipher(new SM4Engine(), new Pkcs7Padding());
+            cipher.Init(true, new KeyParameter(secretKey));
+            byte[] encrypted = ProcessCipher(cipher, plainText);
 
             string cipherText = HexUtil.ByteArrayToHex(encrypted);
             return cipherText;
@@ -63,18 +62,11 @@ namespace github.hyfree.GM.SM4
 
             ValidateKey();
             ValidateIv();
-
-            SM4_Context ctx = new SM4_Context();
-            ctx.isPadding = true;
-            ctx.mode = SM4.SM4_ENCRYPT;
-
-            byte[] keyBytes = secretKey;
             byte[] ivBytes = (byte[])iv.Clone();
-           
 
-            SM4 sm4 = new SM4();
-            sm4.sm4_setkey_enc(ctx, keyBytes);
-            byte[] encrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, plainText);
+            IBufferedCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(new SM4Engine()), new Pkcs7Padding());
+            cipher.Init(true, new ParametersWithIV(new KeyParameter(secretKey), ivBytes));
+            byte[] encrypted = ProcessCipher(cipher, plainText);
             return encrypted;
 
         }
@@ -90,20 +82,36 @@ namespace github.hyfree.GM.SM4
 
             ValidateKey();
             ValidateIv();
-
-            SM4_Context ctx = new SM4_Context();
-            ctx.isPadding = true;
-            ctx.mode = SM4.SM4_DECRYPT;
-
-            byte[] keyBytes = secretKey;
             byte[] ivBytes = (byte[])iv.Clone();
-           
 
-            SM4 sm4 = new SM4();
-            sm4.sm4_setkey_dec(ctx, keyBytes);
-            byte[] decrypted = sm4.sm4_crypt_cbc(ctx, ivBytes, cipherText);
-            return decrypted;
+            try
+            {
+                IBufferedCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(new SM4Engine()), new Pkcs7Padding());
+                cipher.Init(false, new ParametersWithIV(new KeyParameter(secretKey), ivBytes));
+                byte[] decrypted = ProcessCipher(cipher, cipherText);
+                return decrypted;
+            }
+            catch (InvalidCipherTextException ex)
+            {
+                throw new CryptographicException("Invalid SM4 ciphertext or padding.", ex);
+            }
 
+        }
+
+        private static byte[] ProcessCipher(IBufferedCipher cipher, byte[] input)
+        {
+            byte[] output = new byte[cipher.GetOutputSize(input.Length)];
+            int len = cipher.ProcessBytes(input, 0, input.Length, output, 0);
+            len += cipher.DoFinal(output, len);
+
+            if (len == output.Length)
+            {
+                return output;
+            }
+
+            byte[] result = new byte[len];
+            Array.Copy(output, 0, result, 0, len);
+            return result;
         }
 
         //[STAThread]
