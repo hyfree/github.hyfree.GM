@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using Org.BouncyCastle.Utilities.Encoders;
 using System.Text;
 using Org.BouncyCastle.Crypto;
-
 
 namespace github.hyfree.GM.SM3
 {
@@ -188,12 +187,9 @@ namespace github.hyfree.GM.SM3
             return URShift(number, (int)bits);
         }
 
-
     }
 
-    //public class SM3Digest : GeneralDigest
     //{
-    //    public override string AlgorithmName
     //    {
     //        get
     //        {
@@ -201,32 +197,14 @@ namespace github.hyfree.GM.SM3
     //        }
 
     //    }
-    //    public override int GetDigestSize()
     //    {
     //        return DIGEST_LENGTH;
     //    }
 
-    //    private const int DIGEST_LENGTH = 32;
-
-    //    private static readonly int[] v0 = new int[] { 0x7380166f, 0x4914b2b9, 0x172442d7, unchecked((int)0xda8a0600), unchecked((int)0xa96f30bc), 0x163138aa, unchecked((int)0xe38dee4d), unchecked((int)0xb0fb0e4e) };
-
-    //    private int[] v = new int[8];
-    //    private int[] v_ = new int[8];
-
-    //    private static readonly int[] X0 = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    //    private int[] X = new int[68];
-    //    private int xOff;
-
-    //    private int T_00_15 = 0x79cc4519;
-    //    private int T_16_63 = 0x7a879d8a;
-
-    //    public SM3Digest()
     //    {
     //        Reset();
     //    }
 
-    //    public SM3Digest(SM3Digest t) : base(t)
     //    {
 
     //        Array.Copy(t.X, 0, X, 0, t.X.Length);
@@ -235,7 +213,6 @@ namespace github.hyfree.GM.SM3
     //        Array.Copy(t.v, 0, v, 0, t.v.Length);
     //    }
 
-    //    public override void Reset()
     //    {
     //        base.Reset();
 
@@ -252,12 +229,10 @@ namespace github.hyfree.GM.SM3
     //        int[] ww = X;
     //        int[] ww_ = new int[64];
 
-    //        for (i = 16; i < 68; i++)
     //        {
     //            ww[i] = P1(ww[i - 16] ^ ww[i - 9] ^ (ROTATE(ww[i - 3], 15))) ^ (ROTATE(ww[i - 13], 7)) ^ ww[i - 6];
     //        }
 
-    //        for (i = 0; i < 64; i++)
     //        {
     //            ww_[i] = ww[i] ^ ww[i + 4];
     //        }
@@ -268,7 +243,6 @@ namespace github.hyfree.GM.SM3
     //        Array.Copy(vv, 0, vv_, 0, v0.Length);
 
     //        int SS1, SS2, TT1, TT2, aaa;
-    //        for (i = 0; i < 16; i++)
     //        {
     //            aaa = ROTATE(vv_[0], 12);
     //            SS1 = aaa + vv_[4] + ROTATE(T_00_15, i);
@@ -286,7 +260,6 @@ namespace github.hyfree.GM.SM3
     //            vv_[5] = vv_[4];
     //            vv_[4] = P0(TT2);
     //        }
-    //        for (i = 16; i < 64; i++)
     //        {
     //            aaa = ROTATE(vv_[0], 12);
     //            SS1 = aaa + vv_[4] + ROTATE(T_16_63, i);
@@ -304,7 +277,6 @@ namespace github.hyfree.GM.SM3
     //            vv_[5] = vv_[4];
     //            vv_[4] = P0(TT2);
     //        }
-    //        for (i = 0; i < 8; i++)
     //        {
     //            vv[i] ^= vv_[i];
     //        }
@@ -322,7 +294,6 @@ namespace github.hyfree.GM.SM3
     //        n |= (in_Renamed[++inOff] & 0xff);
     //        X[xOff] = n;
 
-    //        if (++xOff == 16)
     //        {
     //            ProcessBlock();
     //        }
@@ -330,7 +301,6 @@ namespace github.hyfree.GM.SM3
 
     //    internal override void ProcessLength(long bitLength)
     //    {
-    //        if (xOff > 14)
     //        {
     //            ProcessBlock();
     //        }
@@ -339,7 +309,6 @@ namespace github.hyfree.GM.SM3
     //        X[15] = (int)(bitLength & unchecked((int)0xffffffff));
     //    }
 
-    //    public static void IntToBigEndian(int n, byte[] bs, int off)
     //    {
     //        bs[off] = (byte)(SupportClass.URShift(n, 24));
     //        bs[++off] = (byte)(SupportClass.URShift(n, 16));
@@ -347,11 +316,9 @@ namespace github.hyfree.GM.SM3
     //        bs[++off] = (byte)(n);
     //    }
 
-    //    public override int DoFinal(byte[] out_Renamed, int outOff)
     //    {
     //        Finish();
 
-    //        for (int i = 0; i < 8; i++)
     //        {
     //            IntToBigEndian(v[i], out_Renamed, outOff + i * 4);
     //        }
@@ -361,39 +328,25 @@ namespace github.hyfree.GM.SM3
     //        return DIGEST_LENGTH;
     //    }
 
-    //    private int ROTATE(int x, int n)
     //    {
-    //        return (x << n) | (SupportClass.URShift(x, (32 - n)));
     //    }
 
-    //    private int P0(int X)
     //    {
-    //        return ((X) ^ ROTATE((X), 9) ^ ROTATE((X), 17));
     //    }
 
-    //    private int P1(int X)
     //    {
-    //        return ((X) ^ ROTATE((X), 15) ^ ROTATE((X), 23));
     //    }
 
-    //    private int FF_00_15(int X, int Y, int Z)
     //    {
-    //        return (X ^ Y ^ Z);
     //    }
 
-    //    private int FF_16_63(int X, int Y, int Z)
     //    {
-    //        return ((X & Y) | (X & Z) | (Y & Z));
     //    }
 
-    //    private int GG_00_15(int X, int Y, int Z)
     //    {
-    //        return (X ^ Y ^ Z);
     //    }
 
-    //    private int GG_16_63(int X, int Y, int Z)
     //    {
-    //        return ((X & Y) | (~X & Z));
     //    }
 
     //    //[STAThread]

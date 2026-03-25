@@ -18,13 +18,13 @@ namespace github.hyfree.GM
             {
                 throw new ArgumentNullException("bigInteger is null");
             }
-            
+
             if (byteData.Length==33 && byteData[0]==0x00)
             {
                 var result=byteData.Skip(1).ToArray();
                 return result;
             }
-            
+
             return byteData;
         }
     }

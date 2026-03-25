@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -52,7 +52,6 @@ namespace github.hyfree.GM.SM4
             return cipherText;
         }
 
-
         public byte[] Encrypt_CBC(byte[] plainText)
         {
             if (plainText == null)
@@ -70,8 +69,6 @@ namespace github.hyfree.GM.SM4
             return encrypted;
 
         }
-
-   
 
         public byte[] Decrypt_CBC(byte[] cipherText)
         {
@@ -116,29 +113,28 @@ namespace github.hyfree.GM.SM4
 
         //[STAThread]
         //public static void Main()
-        //{
-        //    String plainText = "ererfeiisgod";  
+        //    String plainText = "ererfeiisgod";
 
-        //    SM4Utils sm4 = new SM4Utils();  
-        //    sm4.secretKey = "JeF8U9wHFOMfs2Y8";  
-        //    sm4.hexString = false;  
+        //    SM4Utils sm4 = new SM4Utils();
+        //    sm4.secretKey = "JeF8U9wHFOMfs2Y8";
+        //    sm4.hexString = false;
 
-        //    System.Console.Out.WriteLine("ECB模式");  
-        //    String cipherText = sm4.Encrypt_ECB(plainText);  
-        //    System.Console.Out.WriteLine("密文: " + cipherText);  
-        //    System.Console.Out.WriteLine("");  
+        //    System.Console.Out.WriteLine("ECB模式");
+        //    String cipherText = sm4.Encrypt_ECB(plainText);
+        //    System.Console.Out.WriteLine("密文: " + cipherText);
+        //    System.Console.Out.WriteLine("");
 
-        //    plainText = sm4.Decrypt_ECB(cipherText);  
-        //    System.Console.Out.WriteLine("明文: " + plainText);  
-        //    System.Console.Out.WriteLine("");  
+        //    plainText = sm4.Decrypt_ECB(cipherText);
+        //    System.Console.Out.WriteLine("明文: " + plainText);
+        //    System.Console.Out.WriteLine("");
 
-        //    System.Console.Out.WriteLine("CBC模式");  
-        //    sm4.iv = "UISwD9fW6cFh9SNS";  
-        //    cipherText = sm4.Encrypt_CBC(plainText);  
-        //    System.Console.Out.WriteLine("密文: " + cipherText);  
-        //    System.Console.Out.WriteLine("");  
+        //    System.Console.Out.WriteLine("CBC模式");
+        //    sm4.iv = "UISwD9fW6cFh9SNS";
+        //    cipherText = sm4.Encrypt_CBC(plainText);
+        //    System.Console.Out.WriteLine("密文: " + cipherText);
+        //    System.Console.Out.WriteLine("");
 
-        //    plainText = sm4.Decrypt_CBC(cipherText);  
+        //    plainText = sm4.Decrypt_CBC(cipherText);
         //    System.Console.Out.WriteLine("明文: " + plainText);
 
         //    Console.ReadLine();

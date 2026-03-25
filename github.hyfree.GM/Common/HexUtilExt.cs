@@ -6,7 +6,7 @@ namespace github.hyfree.GM.Common
 {
     public static class HexUtilExt
     {
-       
+
         public static string ByteArrayToHex(this byte[] data )
         {
           return HexUtil.ByteArrayToHex(data);

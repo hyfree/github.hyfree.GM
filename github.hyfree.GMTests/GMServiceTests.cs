@@ -1,4 +1,4 @@
-﻿using github.hyfree.GM.Common;
+using github.hyfree.GM.Common;
 using github.hyfree.GM.HDKF;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -45,7 +45,7 @@ namespace github.hyfree.GM.Tests
             {
                 var enc = gMService.SM2Encrypt(buffer, pubkBuffer);
             }
-           
+
             stopwatch.Stop();
             Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
@@ -70,7 +70,7 @@ namespace github.hyfree.GM.Tests
             GMService gMService = new GMService();
             var dec = gMService.SM2Decrypt(data, sm2PriKey, true);
             Console.WriteLine(dec);
-           
+
         }
 
         [TestMethod()]
@@ -128,11 +128,11 @@ namespace github.hyfree.GM.Tests
             var iv = "00000000000000000000000000000000";//测试用途
             GMService gMService = new GMService();
             var dec = gMService.SM4_Decrypt_CBC(data.HexToByteArray(), key.HexToByteArray(), iv.HexToByteArray()).ByteArrayToHex();
-          
+
             //期望数据
             var str=Encoding.UTF8.GetString(dec.HexToByteArray());
             Console.WriteLine(str);
-           
+
         }
 
         [TestMethod()]
@@ -247,7 +247,6 @@ namespace github.hyfree.GM.Tests
             Assert.AreEqual(sm3Hex.ToUpper(), expect.ToUpper());
         }
 
-
         [TestMethod()]
         public void HKDFTest()
         {
@@ -301,14 +300,13 @@ namespace github.hyfree.GM.Tests
         [TestMethod()]
         public void HmacTest2()
         {
-           
+
             var gm = new GMService();
             //32字节输入
             var test1 = gm.Hmac("01020304050607080102030405060708", "01020304050607080102030405060708");
             Console.WriteLine( test1);
             Assert.AreEqual(test1.ToLower(), "81235142d8b53b66ccce30256418e14286d9ebc58143ca00565b5aeacc9395df");
 
-           
         }
         [TestMethod()]
         public void HmacTest3()
@@ -319,7 +317,6 @@ namespace github.hyfree.GM.Tests
             var test1 = gm.Hmac("b4ab70c69fed2e090001", "368c1adba8b9d783");
             Console.WriteLine(test1);
             Assert.AreEqual(test1.ToLower(), "c9212fea556eaac8d319756efe4203c3936134c2d281c67f48ee349ae3ea3d5c");
-
 
         }
         [TestMethod()]
@@ -334,10 +331,8 @@ namespace github.hyfree.GM.Tests
             Console.WriteLine("公钥=" + HexUtil.ByteArrayToHex(kp2.PubKey));
             Console.WriteLine("私钥=" + HexUtil.ByteArrayToHex(kp2.PriKey));
 
-
             CollectionAssert.AreEqual(kp.PubKey, kp2.PubKey);
         }
-   
 
         [TestMethod()]
         public void SM2SignTest()
@@ -368,23 +363,18 @@ namespace github.hyfree.GM.Tests
         [TestMethod()]
         public void SM2VerifySignWithETest()
         {
-            //var m = new byte[]{  0x6D, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x20, 0x64, 0x69, 0x67, 0x65, 0x73, 0x74};
             var m =HexUtil.HexToByteArray("DE9D25D6ACF1474B2EE17A4FD79F0B6809614C0703D74BA762FAE8C98ABF313F");
             var SM2Pubkey04= "04062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B";
-          
-            var gm = new GMService();
-           
-            var sign = "BA1AEE1D93FD1C972DB8E39C90AFD274C1212E3AE2A0C00739C536E0EDDDA3481F98DC14D6519142D948670EA4D63C39C3AA5B4C80660B4FE979DFF8488A5CFE";
-           
 
-            
+            var gm = new GMService();
+
+            var sign = "BA1AEE1D93FD1C972DB8E39C90AFD274C1212E3AE2A0C00739C536E0EDDDA3481F98DC14D6519142D948670EA4D63C39C3AA5B4C80660B4FE979DFF8488A5CFE";
+
             var verify = gm.VerifySignWithE(m, HexUtil.HexToByteArray(sign), HexUtil.HexToByteArray(SM2Pubkey04));
             Assert.IsTrue(verify);
             Console.WriteLine("验签1通过");
-            
+
             //var signFake = "044EF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
-            //var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
-            //Assert.IsFalse(verify2);
             //Console.WriteLine("验签2通过");
         }
         [TestMethod()]
@@ -399,7 +389,6 @@ namespace github.hyfree.GM.Tests
             Assert.IsTrue(verify);
         }
 
-
         [TestMethod()]
         public void GMTSM2SignTest()
         {
@@ -407,7 +396,7 @@ namespace github.hyfree.GM.Tests
             var m = HexUtil.HexToByteArray("01020304050607080102030405060708");
             var pubkey= "04062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B";
             var gm = new GMService();
-           
+
             //预处理1
             var z = gm.Preprocessing1(HexUtil.HexToByteArray("062264DFC8EF45E8EEF1A8AE11E57233199FFC3F32336855AF2077926DFCE6EF31BACC498B3B1EC42D35E2281D57F45BF51DA973C6C8FD949EB4F936B2E01B6B"),null);
             Console.WriteLine("预处理1=" + HexUtil.ByteArrayToHex(z));
@@ -419,15 +408,12 @@ namespace github.hyfree.GM.Tests
 
             var verify = gm.VerifySignWithE(h, signData, HexUtil.HexToByteArray(pubkey),null);
 
-         
             Assert.IsTrue(verify);
 
             verify=gm.GMT0009_VerifySign(m,signData,HexUtil.HexToByteArray(pubkey),null);
             Assert.IsTrue(verify);
 
             //var signFake = "044EF2026B5EFDFD060CF86575EEE681487494E290C640CB69F3718BE19935239A13F175A9FC9E0C31401822BCF9F1CA70F276762C739FF6CE369EC23DC2EBCB21";
-            //var verify2 = gm.SM2VerifySign(hex32, signFake, pubK);
-            //Assert.IsFalse(verify2);
             //Console.WriteLine("验签2通过");
         }
     }

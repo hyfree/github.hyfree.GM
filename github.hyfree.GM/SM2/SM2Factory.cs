@@ -124,7 +124,7 @@ namespace github.hyfree.GM.SM2
         public SM2Result Sm2Verify(byte[] md, ECPoint userKey, BigInteger r, BigInteger s)
         {
             var sm2Result=new SM2Result();
-          
+
             BigInteger e = new BigInteger(1, md);
             BigInteger t = r.Add(s).Mod(this.ecc_n);
             if (t.Equals(BigInteger.Zero))

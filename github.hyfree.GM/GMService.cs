@@ -1,7 +1,5 @@
 ﻿
 
-
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +27,7 @@ namespace github.hyfree.GM
         /// <returns></returns>
         public byte[] HKDF(byte[] ikm, byte[] salt, byte[] info, int len)
         {
-            
+
             var prk = HKDFUtil.HKDF_Extract(ikm, salt);
             var okm = HKDFUtil.HKDF_Expand(prk, info, len);
             return okm;
@@ -141,7 +139,7 @@ namespace github.hyfree.GM
             {
                 userId = new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38 };
             }
-         
+
 
             List<byte> inData = new List<byte>();
             //inData.AddRange(HexUtil.HexToByteArray("0080"));//ID比特长度
@@ -154,7 +152,7 @@ namespace github.hyfree.GM
             inData.AddRange(HexUtil.HexToByteArray("28E9FA9E9D9F5E344D5A9E4BCF6509A7F39789F515AB8F92DDBCBD414D940E93"));//b
             inData.AddRange(HexUtil.HexToByteArray("32C4AE2C1F1981195F9904466A39C9948FE30BBFF2660BE1715A4589334C74C7"));//c
             inData.AddRange(HexUtil.HexToByteArray("BC3736A2F4F6779C59BDCEE36B692153D0A9877CC62A474002DF32E52139F0A0"));//d
-        
+
             inData.AddRange(Q);//pubk,没有0x04的部分;
             var hash=SM3(inData.ToArray());
             return hash;
@@ -172,10 +170,9 @@ namespace github.hyfree.GM
             var inData=new List<byte>();
             inData.AddRange(Z);
             inData.AddRange(M);
-            var hash=SM3(inData.ToArray()); 
-            return hash;    
+            var hash=SM3(inData.ToArray());
+            return hash;
         }
-
 
 
         public string SM2Encrypt(string dataHex, string keyHex)
@@ -254,7 +251,6 @@ namespace github.hyfree.GM
         }
 
 
-     
         /// <summary>
         ///  SM4解密
         /// </summary>
@@ -268,7 +264,7 @@ namespace github.hyfree.GM
             SM4Utils sm4 = new SM4Utils();
             sm4.secretKey = key;
             sm4.iv = iv;
-            
+
             return sm4.Decrypt_CBC(data);
         }
         public byte[] PBKDF2_SM3(byte[] passowrd, byte[] salt, int c, int dkLen)
@@ -282,7 +278,7 @@ namespace github.hyfree.GM
             var result= pbkdf.PBDKF2(HexUtil.HexToByteArray(passowrd), HexUtil.HexToByteArray(salt), c, dkLen);
             return HexUtil.ByteArrayToHex(result);
         }
-        
+
         private string GetOutputFormat(byte[] buffer, OutputFormat outputFormat)
         {
             switch (outputFormat)

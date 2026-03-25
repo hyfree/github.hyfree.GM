@@ -13,7 +13,7 @@ namespace github.hyfree.GM.SM2
         {
         }
 
-    
+
         //验签R
         public BigInteger R;
         public BigInteger S;

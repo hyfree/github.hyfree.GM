@@ -1,4 +1,4 @@
-﻿using github.hyfree.GM.Common;
+using github.hyfree.GM.Common;
 using github.hyfree.GM.SM3;
 
 using Org.BouncyCastle.Crypto;
@@ -91,7 +91,6 @@ namespace github.hyfree.GM.SM2
                 return SignWithE(md, privateKey, userId);
 
         }
-       
 
         /// <summary>
         /// 通过输入的E计算签名
@@ -110,7 +109,6 @@ namespace github.hyfree.GM.SM2
             return sm2Factory.Sm2Sign(e, userD, userKey);
 
         }
-
 
         public static bool VerifySign(byte[] msg, SM2Signature sm2Signature, byte[] pubKey, byte[] userId = null)
         {
@@ -152,7 +150,6 @@ namespace github.hyfree.GM.SM2
             return sm2Result.R.Equals(r);
 
         }
-
 
         public static string Encrypt(byte[] publicKey, byte[] data)
         {
@@ -280,9 +277,7 @@ namespace github.hyfree.GM.SM2
             return c1.Concat(c2).Concat(c3).ToArray();
         }
 
-
         //[STAThread]
-        //public static void Main()
         //{
         //    GenerateKeyPair();
 

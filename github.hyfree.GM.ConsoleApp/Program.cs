@@ -1,4 +1,4 @@
-﻿namespace github.hyfree.GM.ConsoleApp
+namespace github.hyfree.GM.ConsoleApp
 {
     internal class Program
     {
@@ -10,7 +10,6 @@
             var gm = new GMService();
             var sign = gm.SM2Sign(hex32, priK);
             Console.WriteLine(sign);
-           // var verify = gm.SM2VerifySign(hex32, sign, pubK);
         }
     }
 }

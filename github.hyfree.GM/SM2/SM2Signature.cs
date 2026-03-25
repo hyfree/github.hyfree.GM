@@ -7,7 +7,7 @@ namespace github.hyfree.GM.SM2
 {
      public class SM2Signature
     {
-        
+
         public SM2Signature()
         {
 
@@ -29,7 +29,7 @@ namespace github.hyfree.GM.SM2
         public byte[] R { get; set; }
         public byte[] S { get; set; }
 
-         
+
         public byte[] ToByteArray()
         {
             return R.Concat(S).ToArray();
